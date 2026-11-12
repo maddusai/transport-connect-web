@@ -1,3 +1,4 @@
+import UserProfileModal from '../../../components/common/UserProfileModal'
 import { getCurrentUser } from '../../../services/apiClient'
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
@@ -101,7 +102,7 @@ const initialTrips: Trip[] = [
     vehicle: 'AP 39 AB 1234',
     date: '15 Nov 2026',
     status: 'Assigned',
-    amount: 'Ã¢â€šÂ¹18,000',
+    amount: '₹18,000',
   },
   {
     id: 'TRIP1002',
@@ -111,7 +112,7 @@ const initialTrips: Trip[] = [
     vehicle: 'TS 09 CD 5678',
     date: '17 Nov 2026',
     status: 'In Progress',
-    amount: 'Ã¢â€šÂ¹22,000',
+    amount: '₹22,000',
   },
   {
     id: 'TRIP1003',
@@ -121,11 +122,12 @@ const initialTrips: Trip[] = [
     vehicle: 'AP 39 AB 1234',
     date: '10 Nov 2026',
     status: 'Completed',
-    amount: 'Ã¢â€šÂ¹30,000',
+    amount: '₹30,000',
   },
 ]
 
 export default function DriverDashboard() {
+  const [profileOpen, setProfileOpen] = useState(false)
   const getDashboardTrips = (): Trip[] => {
     const assignments = getTripDriverAssignments()
     const assignedQuotations = getQuotations().filter(
@@ -151,7 +153,7 @@ export default function DriverDashboard() {
             : tripStatus === 'STARTED' || tripStatus === 'IN_TRANSIT'
               ? 'In Progress'
               : 'Assigned',
-        amount: `Ã¢â€šÂ¹${Number(quotation.amount).toLocaleString('en-IN')}`,
+        amount: `₹${Number(quotation.amount).toLocaleString('en-IN')}`,
         assignedDriverName: assignment.name,
       }
     })
@@ -237,7 +239,7 @@ export default function DriverDashboard() {
           : accuracy <= 500
             ? 'Approximate location; waiting for a better GPS fix'
             : 'Low location accuracy; laptop location may be estimated from Wi-Fi'
-        setGpsMessage(`${accuracyMessage} (Ã‚Â±${Math.round(accuracy)} m) Ã‚Â· Updated ${new Date().toLocaleTimeString()}`)
+        setGpsMessage(`${accuracyMessage} (Ã‚Â±${Math.round(accuracy)} m) · Updated ${new Date().toLocaleTimeString()}`)
 
         // Reverse-geocode at most once every 15 seconds to avoid excessive requests.
         if (Date.now() - lastGeocodeAtRef.current >= 15000) {
@@ -397,7 +399,7 @@ export default function DriverDashboard() {
               <Bell size={19} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
             </button>
-            <div className="hidden items-center gap-2 sm:flex">
+            <div onClick={() => setProfileOpen(true)} role="button" tabIndex={0} title="Open Profile" className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1 hover:bg-slate-100">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
                 DR
               </div>
@@ -406,6 +408,7 @@ export default function DriverDashboard() {
                 <p className="text-xs text-slate-500">Active Account</p>
               </div>
             </div>
+            <UserProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
           </div>
         </header>
 
@@ -450,7 +453,7 @@ export default function DriverDashboard() {
                 />
                 <StatCard
                   title="Total Earnings"
-                  value="Ã¢â€šÂ¹70,000"
+                  value="₹70,000"
                   icon={<Wallet size={23} />}
                   color="bg-purple-50 text-purple-600"
                 />
@@ -463,7 +466,7 @@ export default function DriverDashboard() {
                       <p className="text-sm text-blue-100">Current Active Trip</p>
                       <h3 className="mt-2 text-2xl font-bold">{activeTrip.id}</h3>
                       <p className="mt-2 text-sm text-blue-100">
-                        {activeTrip.from} Ã¢â€ â€™ {activeTrip.to}
+                        {activeTrip.from} → {activeTrip.to}
                       </p>
                     </div>
                     <button
@@ -633,16 +636,16 @@ export default function DriverDashboard() {
               </p>
               <div className="rounded-2xl border border-slate-200 bg-white p-6">
                 <p className="text-sm text-slate-500">Total Earnings</p>
-                <h3 className="mt-2 text-3xl font-bold">Ã¢â€šÂ¹70,000</h3>
+                <h3 className="mt-2 text-3xl font-bold">₹70,000</h3>
                 <p className="mt-2 text-xs text-green-600">
                   Demo earnings from completed and ongoing trips
                 </p>
               </div>
               <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
                 <h4 className="mb-4 font-bold">Payment Summary</h4>
-                <InfoItem label="Completed Trip Earnings" value="Ã¢â€šÂ¹30,000" />
-                <InfoItem label="Ongoing Trip Amount" value="Ã¢â€šÂ¹22,000" />
-                <InfoItem label="Other Demo Earnings" value="Ã¢â€šÂ¹18,000" />
+                <InfoItem label="Completed Trip Earnings" value="₹30,000" />
+                <InfoItem label="Ongoing Trip Amount" value="₹22,000" />
+                <InfoItem label="Other Demo Earnings" value="₹18,000" />
               </div>
             </section>
           )}

@@ -106,7 +106,7 @@ export default function LiveTripTrackingModal({
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Trip ID: <span className="font-semibold text-slate-700">{trip.tripId}</span> Ã‚Â· Booking:{' '}
+                Trip ID: <span className="font-semibold text-slate-700">{trip.tripId}</span> · Booking:{' '}
                 <span className="font-semibold text-slate-700">{trip.bookingId}</span>
               </p>
             </div>

@@ -1,3 +1,4 @@
+import UserProfileModal from '../../../components/common/UserProfileModal'
 import { useEffect, useMemo, useState } from 'react'
 import { apiClient, getAuthToken } from '../../../services/apiClient'
 import { getCustomerLoads, getMarketplaceLoads, getQuotations } from '../../../utils/loadStorage'
@@ -103,8 +104,8 @@ const menuItems: { name: AdminPage; icon: typeof LayoutDashboard }[] = [
 
 function formatCurrency(value: string | number): string {
   const amount = Number(String(value).replace(/[^0-9.]/g, ''))
-  if (!Number.isFinite(amount)) return 'Ã¢â€šÂ¹0'
-  return `Ã¢â€šÂ¹${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+  if (!Number.isFinite(amount)) return '₹0'
+  return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
 }
 
 function formatStatus(value: string): string {
@@ -129,7 +130,7 @@ function getAdminLoads(): AdminLoad[] {
   const customerLoads = getCustomerLoads().map((load) => ({
     id: load.id,
     customer: 'Customer',
-    route: `${load.from} Ã¢â€ â€™ ${load.to}`,
+    route: `${load.from} → ${load.to}`,
     vehicle: load.vehicle,
     status: formatStatus(String(load.status || 'Open')),
     budget: formatCurrency(load.amount),
@@ -138,7 +139,7 @@ function getAdminLoads(): AdminLoad[] {
   const marketplaceLoads = getMarketplaceLoads().map((load) => ({
     id: load.id,
     customer: 'Customer',
-    route: `${load.from} Ã¢â€ â€™ ${load.to}`,
+    route: `${load.from} → ${load.to}`,
     vehicle: load.vehicle,
     status: formatStatus(String(load.status || 'Open')),
     budget: formatCurrency(load.budget),
@@ -156,7 +157,7 @@ function getAdminBookings(): AdminBooking[] {
     .filter((quotation) => quotation.status === 'ACCEPTED')
     .map((quotation) => ({
       id: quotation.id,
-      route: `${quotation.from} Ã¢â€ â€™ ${quotation.to}`,
+      route: `${quotation.from} → ${quotation.to}`,
       customer: 'Customer',
       owner: quotation.truckOwner || 'Truck Owner',
       amount: formatCurrency(quotation.amount),
@@ -236,11 +237,75 @@ function getAdminUsers(): AdminUser[] {
 }
 
 export default function AdminDashboard() {
+  const [profileOpen, setProfileOpen] = useState(false)
   const [activePage, setActivePage] = useState<AdminPage>('Overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [users, setUsers] = useState<AdminUser[]>(getAdminUsers)
-  const [loads, setLoads] = useState<AdminLoad[]>(getAdminLoads)
-  const [bookings, setBookings] = useState<AdminBooking[]>(getAdminBookings)
+    const [users, setUsers] = useState<AdminUser[]>([])
+
+  useEffect(() => {
+    localStorage.removeItem('transport_connect_registered_users')
+    localStorage.removeItem('transport_connect_owner_drivers')
+    apiClient
+      .getAdminUsers()
+      .then((apiUsers) => {
+        const roleMap: Record<string, AdminUser['role']> = {
+          CUSTOMER: 'Customer',
+          TRUCK_OWNER: 'Truck Owner',
+          DRIVER: 'Driver',
+          TRANSPORTER: 'Transporter',
+        }
+        const mapped: AdminUser[] = (apiUsers || [])
+          .filter((u: any) => u.role !== 'ADMIN')
+          .map((u: any) => ({
+            id: String(u.id),
+            name: u.name || 'User',
+            phone: u.phone || '',
+            role: roleMap[u.role] || 'Customer',
+            status: 'Active',
+            joined: u.createdAt
+              ? new Date(u.createdAt).toLocaleDateString('en-IN', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                })
+              : 'Today',
+            email: u.email,
+            businessName: u.companyName,
+            address: u.city,
+            gstin: u.gstNumber,
+            source: 'REGISTERED',
+          }))
+        setUsers(mapped)
+      })
+      .catch(() => setUsers([]))
+  }, [])
+  const [loads, setLoads] = useState<AdminLoad[]>([])
+  const [bookings, setBookings] = useState<AdminBooking[]>([])
+  
+  useEffect(() => {
+    apiClient.getOpenLoads().then((data) => {
+      setLoads((data || []).map((l: any) => ({
+        id: String(l.id),
+        customer: l.customerName || "Customer",
+        route: `${l.pickupLocation || l.from || ""} → ${l.dropLocation || l.to || ""}`,
+        vehicle: l.vehicleType || l.vehicle || "-",
+        status: formatStatus(String(l.status || "OPEN")),
+        budget: formatCurrency(l.budget || l.amount || 0),
+      })));
+    }).catch(() => setLoads([]));
+
+    apiClient.getMyBookings().then((data) => {
+      setBookings((data || []).map((b: any) => ({
+        id: String(b.id),
+        route: `${b.pickupLocation || b.from || ""} → ${b.dropLocation || b.to || ""}`,
+        customer: b.customerName || "Customer",
+        owner: b.truckOwnerName || b.transporterName || "Truck Owner",
+        amount: formatCurrency(b.amount || b.agreedAmount || 0),
+        status: formatStatus(String(b.status || "BOOKED")),
+      })));
+    }).catch(() => setBookings([]));
+  }, []);
+
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('All')
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
@@ -384,10 +449,11 @@ export default function AdminDashboard() {
             <button className="relative rounded-xl border border-slate-200 p-2.5" aria-label="Notifications">
               <Bell size={19} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
             </button>
-            <div className="hidden items-center gap-2 sm:flex">
+            <div onClick={() => setProfileOpen(true)} role="button" tabIndex={0} title="Open Profile" className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1 hover:bg-slate-100">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-700">AD</div>
               <div><p className="text-sm font-semibold">Admin</p><p className="text-xs text-slate-500">Platform control</p></div>
             </div>
+            <UserProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
           </div>
         </header>
 
@@ -432,7 +498,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                   <SectionHeader title="Recent registrations" action="View users" onAction={() => setActivePage('Customers')} />
-                  <div className="mt-4 space-y-3">{users.slice(0, 3).map((user) => <div key={user.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-4"><div><p className="font-semibold">{user.name}</p><p className="mt-1 text-xs text-slate-500">{user.role} Ã‚Â· {user.joined}</p></div><StatusPill status={user.status} /></div>)}</div>
+                  <div className="mt-4 space-y-3">{users.slice(0, 3).map((user) => <div key={user.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-4"><div><p className="font-semibold">{user.name}</p><p className="mt-1 text-xs text-slate-500">{user.role} · {user.joined}</p></div><StatusPill status={user.status} /></div>)}</div>
                 </div>
               </div>
             </>
@@ -1001,5 +1067,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function EmptyState({ message }: { message: string }) {
-  return <div className="p-10 text-center"><MapPin className="mx-auto mb-3 text-slate-300" size={30} /><p className="text-sm text-slate-500">{message}</p></div>
+  return <div className="p-10 text-center"><MapPin className="mx-auto mb-3 text-slate-300" size={30} /><p className="text-sm text-slate-500">{message}</p>
+    </div>
 }

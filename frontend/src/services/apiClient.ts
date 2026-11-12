@@ -15,6 +15,7 @@ export function setAuthToken(token: string | null): void {
 }
 
 export function getCurrentUser(): any | null {
+  if (!getAuthToken()) return null;
   try {
     const raw = localStorage.getItem(CURRENT_USER_KEY);
     return raw ? JSON.parse(raw) : null;

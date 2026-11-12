@@ -29,61 +29,7 @@ export interface TransportBooking {
 
 const BOOKINGS_STORAGE_KEY = 'transport_connect_bookings_v1'
 
-const initialDemoBookings: TransportBooking[] = [
-  {
-    id: 'BK-10492',
-    loadId: 'LD1001',
-    quotationId: 'QT-5001',
-    from: 'Hyderabad, Uppal',
-    to: 'Bangalore, Electronic City',
-    stops: ['Kurnool Bypass', 'Anantapur Hub'],
-    material: 'Electronics',
-    vehicleType: '32 FT Container',
-    truckNumber: 'TS 09 AB 1234',
-    truckOwner: 'Sai Transport Agency',
-    driverName: 'Ramesh Kumar',
-    driverPhone: '+91 98765 43210',
-    amount: 27500,
-    stage: 'IN_TRANSIT',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'BK-10493',
-    loadId: 'LD1002',
-    quotationId: 'QT-5002',
-    from: 'Vijayawada, Auto Nagar',
-    to: 'Chennai, Ambattur',
-    stops: ['Nellore Bypass'],
-    material: 'Agricultural Goods',
-    vehicleType: '14 FT Truck',
-    truckNumber: 'AP 16 CD 5678',
-    truckOwner: 'Venkateswara Logistics',
-    driverName: 'Not Assigned',
-    driverPhone: '+91 98765 43211',
-    amount: 17500,
-    stage: 'BOOKED',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'BK-10489',
-    loadId: 'LD1004',
-    from: 'Visakhapatnam',
-    to: 'Hyderabad',
-    stops: ['Rajahmundry', 'Vijayawada'],
-    material: 'Industrial Goods',
-    vehicleType: 'Container',
-    truckNumber: 'TS 08 EF 9012',
-    truckOwner: 'Sai Transport Agency',
-    driverName: 'Mahesh Babu',
-    driverPhone: '+91 98765 43212',
-    amount: 24000,
-    stage: 'COMPLETED',
-    podReference: 'POD-VIZ-8891',
-    rating: 5,
-    reviewNote: 'On-time delivery and safe handling of machinery.',
-    createdAt: new Date().toISOString(),
-  },
-]
+const initialDemoBookings: TransportBooking[] = []
 
 export function getBookings(): TransportBooking[] {
   try {

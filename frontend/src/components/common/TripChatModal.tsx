@@ -92,7 +92,7 @@ export default function TripChatModal({
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Trip: <span className="font-semibold text-slate-700">{bookingId}</span> Ã‚Â· {route}
+                Trip: <span className="font-semibold text-slate-700">{bookingId}</span> · {route}
               </p>
             </div>
           </div>

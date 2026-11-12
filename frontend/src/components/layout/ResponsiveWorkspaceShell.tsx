@@ -190,7 +190,7 @@ export default function ResponsiveWorkspaceShell({
                 {navItems.find((n) => n.id === activeTab)?.label}
               </h2>
               <p className="hidden text-xs text-slate-500 sm:block">
-                Transport Connect Ã‚Â· Unified Operations Workspace
+                Transport Connect · Unified Operations Workspace
               </p>
             </div>
           </div>

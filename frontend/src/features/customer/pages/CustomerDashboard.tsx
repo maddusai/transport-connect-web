@@ -305,17 +305,17 @@ function CustomerDashboard() {
               <p className="mt-1 font-semibold text-slate-800">{u?.city || u?.address || u?.location || 'Not provided'}</p>
             </div>
 
-            {(currentUser?.companyName || currentUser?.businessName) && (
+            {(u?.companyName || u?.businessName) && (
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Business Name</p>
-                <p className="mt-1 font-semibold text-slate-800">{currentUser?.companyName || currentUser?.businessName}</p>
+                <p className="mt-1 font-semibold text-slate-800">{u?.companyName || u?.businessName}</p>
               </div>
             )}
 
-            {(currentUser?.gstNumber || currentUser?.gstin) && (
+            {(u?.gstNumber || u?.gstin) && (
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">GSTIN</p>
-                <p className="mt-1 font-semibold text-slate-800">{currentUser?.gstNumber || currentUser?.gstin}</p>
+                <p className="mt-1 font-semibold text-slate-800">{u?.gstNumber || u?.gstin}</p>
               </div>
             )}
           </div>
@@ -529,7 +529,7 @@ function BookingTable({
                       <div className="font-semibold text-slate-800">{load.from}</div>
                       <div className="text-xs text-slate-400">to {load.to}</div>
                       <div className="mt-1 text-xs font-medium text-blue-700">
-                        {(load.loadingPoints?.length || 1)} loading Ãƒâ€šÃ‚Â· {(load.unloadingPoints?.length || 1)} unloading
+                        {(load.loadingPoints?.length || 1)} loading · {(load.unloadingPoints?.length || 1)} unloading
                       </div>
                     </td>
                     <td className="px-5 py-4">
@@ -978,7 +978,7 @@ function CustomerPayments({
               <option value="">Choose a confirmed booking</option>
               {eligibleLoads.map((load) => (
                 <option key={load.id} value={load.id}>
-                  {load.id} Ãƒâ€šÃ‚Â· {load.from} to {load.to} Ãƒâ€šÃ‚Â· ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹{Number(load.amount || 0).toLocaleString('en-IN')}
+                  {load.id} · {load.from} to {load.to} · ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹{Number(load.amount || 0).toLocaleString('en-IN')}
                 </option>
               ))}
             </select>

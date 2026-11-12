@@ -164,11 +164,6 @@ function AuthModal({
       return
     }
 
-    if (role === 'ADMIN') {
-      onLogin('ADMIN')
-      return
-    }
-
     apiClient
       .login(formData.mobile, formData.password)
       .then((response) => {
@@ -193,7 +188,7 @@ function AuthModal({
         }
         setError(
           err.message ||
-            'Invalid mobile number or password. Please register first.',
+            'Invalid mobile number / email or password.',
         )
       })
   }

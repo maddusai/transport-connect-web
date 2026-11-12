@@ -1,3 +1,4 @@
+import UserProfileModal from '../../../components/common/UserProfileModal'
 
 import { useState } from 'react'
 import {
@@ -82,7 +83,7 @@ const sampleLoads: Load[] = [
     material: 'Electronics',
     weight: '5 Ton',
     vehicle: 'Container',
-    budget: 'Ã¢â€šÂ¹18,000',
+    budget: '₹18,000',
     date: '15 Nov 2026',
   },
   {
@@ -92,7 +93,7 @@ const sampleLoads: Load[] = [
     material: 'Agricultural Goods',
     weight: '8 Ton',
     vehicle: 'Open Truck',
-    budget: 'Ã¢â€šÂ¹22,000',
+    budget: '₹22,000',
     date: '17 Nov 2026',
   },
   {
@@ -102,7 +103,7 @@ const sampleLoads: Load[] = [
     material: 'Construction Materials',
     weight: '10 Ton',
     vehicle: 'Heavy Truck',
-    budget: 'Ã¢â€šÂ¹30,000',
+    budget: '₹30,000',
     date: '19 Nov 2026',
   },
 ]
@@ -137,6 +138,7 @@ const formatTripStatus = (status: TripStatus): string =>
   status.replaceAll('_', ' ')
 
 export default function TruckOwnerDashboard() {
+  const [profileOpen, setProfileOpen] = useState(false)
   const [activePage, setActivePage] = useState<Page>('Overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -153,7 +155,7 @@ export default function TruckOwnerDashboard() {
         weight: `${load.weight} Ton`,
         vehicle: load.vehicle,
         budget: load.amount
-          ? `Ã¢â€šÂ¹${Number(load.amount).toLocaleString('en-IN')}`
+          ? `₹${Number(load.amount).toLocaleString('en-IN')}`
           : 'Not specified',
         date: load.date || 'Date not specified',
       }))
@@ -462,7 +464,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
             </button>
 
-            <div className="hidden items-center gap-2 sm:flex">
+            <div onClick={() => setProfileOpen(true)} role="button" tabIndex={0} title="Open Profile" className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1 hover:bg-slate-100">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
                 TO
               </div>
@@ -471,6 +473,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                 <p className="text-xs text-slate-500">Business Account</p>
               </div>
             </div>
+            <UserProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
           </div>
         </header>
 
@@ -649,7 +652,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                             Load ID: {quotation.loadId}
                           </h4>
                           <p className="mt-1 text-sm text-slate-500">
-                            {quotation.from} Ã¢â€ â€™ {quotation.to}
+                            {quotation.from} → {quotation.to}
                           </p>
                         </div>
                         <span
@@ -669,7 +672,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                         <div>
                           <p className="text-xs text-slate-500">Your Quotation</p>
                           <p className="mt-1 text-xl font-bold text-green-600">
-                            Ã¢â€šÂ¹{Number(quotation.amount).toLocaleString('en-IN')}
+                            ₹{Number(quotation.amount).toLocaleString('en-IN')}
                           </p>
                         </div>
                         <p className="text-xs text-slate-400">
@@ -717,7 +720,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                                 {trip.loadId}
                               </span>
                               <h4 className="mt-3 text-lg font-bold text-slate-900">
-                                {trip.from} Ã¢â€ â€™ {trip.to}
+                                {trip.from} → {trip.to}
                               </h4>
                               <p className="mt-1 text-xs text-slate-500">
                                 Quotation ID: {trip.id}
@@ -736,7 +739,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                             <div>
                               <p className="text-xs text-slate-500">Accepted Amount</p>
                               <p className="mt-1 text-lg font-bold text-green-700">
-                                Ã¢â€šÂ¹{Number(trip.amount).toLocaleString('en-IN')}
+                                ₹{Number(trip.amount).toLocaleString('en-IN')}
                               </p>
                             </div>
                             <div>
@@ -933,7 +936,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
 
             <div className="mb-5 rounded-xl bg-slate-50 p-4 text-sm">
               <p className="font-semibold">
-                {selectedLoad.from} Ã¢â€ â€™ {selectedLoad.to}
+                {selectedLoad.from} → {selectedLoad.to}
               </p>
               <p className="mt-2 text-slate-500">
                 Customer budget: {selectedLoad.budget}
@@ -941,7 +944,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
             </div>
 
             <label className="mb-2 block text-sm font-medium">
-              Your Quotation (Ã¢â€šÂ¹)
+              Your Quotation (₹)
             </label>
 
             <input
@@ -997,7 +1000,7 @@ function Overview({
     },
     {
       label: 'Total Earnings',
-      value: 'Ã¢â€šÂ¹45,000',
+      value: '₹45,000',
       icon: Wallet,
       color: 'bg-green-50 text-green-600',
       change: 'Demo earnings',
@@ -1059,7 +1062,7 @@ function Overview({
               <p className="text-sm text-blue-100">
                 Business Performance
               </p>
-              <h3 className="mt-2 text-3xl font-bold">Ã¢â€šÂ¹45,000</h3>
+              <h3 className="mt-2 text-3xl font-bold">₹45,000</h3>
               <p className="mt-2 text-sm text-blue-100">
                 Total demo earnings
               </p>

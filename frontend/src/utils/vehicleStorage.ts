@@ -15,43 +15,7 @@ export interface FleetVehicle {
 
 const VEHICLES_STORAGE_KEY = 'transport_connect_fleet_vehicles'
 
-const initialDemoVehicles: FleetVehicle[] = [
-  {
-    id: 'VEH-101',
-    registrationNumber: 'TS 09 AB 1234',
-    vehicleType: '32 FT Container',
-    capacityTons: 15,
-    assignedDriver: 'Ramesh Kumar',
-    driverPhone: '9876543210',
-    rcExpiry: '2028-08-15',
-    insuranceExpiry: '2027-03-20',
-    status: 'Available',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'VEH-102',
-    registrationNumber: 'AP 16 CD 5678',
-    vehicleType: '14 FT Truck',
-    capacityTons: 5,
-    assignedDriver: 'Suresh Reddy',
-    driverPhone: '9876543211',
-    rcExpiry: '2027-11-10',
-    insuranceExpiry: '2026-12-30',
-    status: 'On Trip',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'VEH-103',
-    registrationNumber: 'TS 08 EF 9012',
-    vehicleType: '20 FT Container',
-    capacityTons: 12,
-    assignedDriver: 'Not Assigned',
-    rcExpiry: '2029-01-25',
-    insuranceExpiry: '2027-06-14',
-    status: 'Maintenance',
-    createdAt: new Date().toISOString(),
-  },
-]
+const initialDemoVehicles: FleetVehicle[] = []
 
 export function getFleetVehicles(): FleetVehicle[] {
   try {

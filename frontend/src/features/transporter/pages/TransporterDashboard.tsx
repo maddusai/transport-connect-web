@@ -1,3 +1,4 @@
+import UserProfileModal from '../../../components/common/UserProfileModal'
 import { useState, useMemo, useEffect } from 'react'
 import { getCustomerLoads, saveMarketplaceLoads } from '../../../utils/loadStorage'
 import LiveTripTrackingModal from '../../../components/common/LiveTripTrackingModal'
@@ -91,17 +92,17 @@ const menuItems = [
 ]
 
 const initialDemoLoads: TransporterLoad[] = [
-  { id: 'LD1001', from: 'Hyderabad', to: 'Bangalore', stops: ['Kurnool', 'Anantapur'], material: 'Electronics', vehicle: '32 FT Container', weight: '8 Ton', budget: 'Ã¢â€šÂ¹28,000', status: 'Open' },
-  { id: 'LD1002', from: 'Vijayawada', to: 'Chennai', stops: ['Nellore'], material: 'Agricultural Goods', vehicle: '14 FT Truck', weight: '5 Ton', budget: 'Ã¢â€šÂ¹18,000', status: 'Assigned' },
-  { id: 'LD1003', from: 'Warangal', to: 'Pune', stops: ['Hyderabad', 'Solapur'], material: 'Construction Materials', vehicle: '20 FT Truck', weight: '12 Ton', budget: 'Ã¢â€šÂ¹35,000', status: 'In Transit' },
-  { id: 'LD1004', from: 'Visakhapatnam', to: 'Hyderabad', stops: ['Rajahmundry', 'Vijayawada'], material: 'Industrial Goods', vehicle: 'Container', weight: '10 Ton', budget: 'Ã¢â€šÂ¹24,000', status: 'Completed' },
+  { id: 'LD1001', from: 'Hyderabad', to: 'Bangalore', stops: ['Kurnool', 'Anantapur'], material: 'Electronics', vehicle: '32 FT Container', weight: '8 Ton', budget: '₹28,000', status: 'Open' },
+  { id: 'LD1002', from: 'Vijayawada', to: 'Chennai', stops: ['Nellore'], material: 'Agricultural Goods', vehicle: '14 FT Truck', weight: '5 Ton', budget: '₹18,000', status: 'Assigned' },
+  { id: 'LD1003', from: 'Warangal', to: 'Pune', stops: ['Hyderabad', 'Solapur'], material: 'Construction Materials', vehicle: '20 FT Truck', weight: '12 Ton', budget: '₹35,000', status: 'In Transit' },
+  { id: 'LD1004', from: 'Visakhapatnam', to: 'Hyderabad', stops: ['Rajahmundry', 'Vijayawada'], material: 'Industrial Goods', vehicle: 'Container', weight: '10 Ton', budget: '₹24,000', status: 'Completed' },
 ]
 
 const demoTripsList: TransporterTrip[] = [
   {
     id: 'TRP-84920',
     bookingId: 'BK-10492',
-    route: 'Hyderabad Ã¢â€ â€™ Bangalore',
+    route: 'Hyderabad → Bangalore',
     from: 'Hyderabad, Uppal',
     to: 'Bangalore, Electronic City',
     stops: ['Kurnool Bypass', 'Anantapur Hub'],
@@ -118,7 +119,7 @@ const demoTripsList: TransporterTrip[] = [
   {
     id: 'TRP-84921',
     bookingId: 'BK-10493',
-    route: 'Vijayawada Ã¢â€ â€™ Chennai',
+    route: 'Vijayawada → Chennai',
     from: 'Vijayawada, Auto Nagar',
     to: 'Chennai, Ambattur',
     stops: ['Guntur', 'Nellore Bypass'],
@@ -135,7 +136,7 @@ const demoTripsList: TransporterTrip[] = [
   {
     id: 'TRP-84918',
     bookingId: 'BK-10489',
-    route: 'Warangal Ã¢â€ â€™ Hyderabad',
+    route: 'Warangal → Hyderabad',
     from: 'Warangal MIDC',
     to: 'Hyderabad Cherlapally',
     stops: [],
@@ -182,6 +183,7 @@ function saveTransporterLoadsToStorage(loadsList: TransporterLoad[]) {
 }
 
 export default function TransporterDashboard() {
+  const [profileOpen, setProfileOpen] = useState(false)
   const [activePage, setActivePage] = useState<Page>('Overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -216,7 +218,7 @@ export default function TransporterDashboard() {
               material: l.materialType || 'General Cargo',
               vehicle: l.requiredVehicleType || 'Truck',
               weight: `${l.weightTons ?? 10} Ton`,
-              budget: l.offeredPrice ? `â‚¹${Number(l.offeredPrice).toLocaleString('en-IN')}` : 'Not specified',
+              budget: l.offeredPrice ? `₹${Number(l.offeredPrice).toLocaleString('en-IN')}` : 'Not specified',
               status: l.status === 'IN_TRANSIT' ? 'In Transit' : l.status === 'DELIVERED' ? 'Completed' : 'Open',
               createdAt: l.createdAt,
             })),
@@ -252,7 +254,7 @@ export default function TransporterDashboard() {
             list.map((b: any) => ({
               id: `TRP-${b.id}`,
               bookingId: String(b.id),
-              route: `${b.pickupCity} â†’ ${b.dropCity}`,
+              route: `${b.pickupCity} → ${b.dropCity}`,
               from: b.pickupCity,
               to: b.dropCity,
               stops: [],
@@ -287,7 +289,7 @@ export default function TransporterDashboard() {
       material: load.material,
       vehicle: load.vehicle,
       weight: `${load.weight} Ton`,
-      budget: load.amount ? `Ã¢â€šÂ¹${Number(load.amount).toLocaleString('en-IN')}` : 'Not specified',
+      budget: load.amount ? `₹${Number(load.amount).toLocaleString('en-IN')}` : 'Not specified',
       status:
         load.status === 'IN_TRANSIT'
           ? 'In Transit'
@@ -333,7 +335,7 @@ export default function TransporterDashboard() {
 
     const cleanBudgetNumber = budget.replace(/[^0-9]/g, '')
     const formattedBudget = cleanBudgetNumber
-      ? `Ã¢â€šÂ¹${Number(cleanBudgetNumber).toLocaleString('en-IN')}`
+      ? `₹${Number(cleanBudgetNumber).toLocaleString('en-IN')}`
       : 'Negotiable'
 
     const newLoad: TransporterLoad = {
@@ -394,7 +396,7 @@ export default function TransporterDashboard() {
     { label: 'Total Loads', value: allLoads.length.toString(), change: '+14.2%', icon: Package, color: 'bg-blue-50 text-blue-600' },
     { label: 'Active Trips', value: '36', change: '+8.2%', icon: Truck, color: 'bg-indigo-50 text-indigo-600' },
     { label: 'Available Trucks', value: '18', change: 'Fleet ready', icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-600' },
-    { label: 'Monthly Revenue', value: 'Ã¢â€šÂ¹8.45L', change: '+15.3%', icon: IndianRupee, color: 'bg-amber-50 text-amber-600' },
+    { label: 'Monthly Revenue', value: '₹8.45L', change: '+15.3%', icon: IndianRupee, color: 'bg-amber-50 text-amber-600' },
   ]
 
   return (
@@ -494,13 +496,14 @@ export default function TransporterDashboard() {
               <Bell size={19} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
             </button>
-            <div className="hidden items-center gap-3 border-l border-slate-200 pl-4 sm:flex">
+            <div onClick={() => setProfileOpen(true)} role="button" tabIndex={0} title="Open Profile" className="flex cursor-pointer items-center gap-3 rounded-xl border-l border-slate-200 py-1 pl-4 pr-2 hover:bg-slate-100">
               <div className="text-right">
                 <p className="text-sm font-semibold">Sai Transport Agency</p>
                 <p className="text-xs text-slate-500">Transporter Account</p>
               </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">ST</div>
             </div>
+            <UserProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
           </div>
         </header>
 
@@ -566,7 +569,7 @@ export default function TransporterDashboard() {
                   <div className="mt-5 flex items-center justify-between">
                     <div>
                       <p className="text-xs text-slate-500">Total revenue</p>
-                      <p className="mt-1 text-xl font-bold text-slate-900">Ã¢â€šÂ¹42,85,000</p>
+                      <p className="mt-1 text-xl font-bold text-slate-900">₹42,85,000</p>
                     </div>
                     <span className="flex items-center gap-1 text-sm font-semibold text-emerald-600"><ArrowUpRight size={17} /> 15.3%</span>
                   </div>
@@ -763,7 +766,7 @@ export default function TransporterDashboard() {
                       </label>
 
                       <label className="block">
-                        <span className="mb-2 block text-sm font-medium text-slate-700">Expected Budget (Ã¢â€šÂ¹)</span>
+                        <span className="mb-2 block text-sm font-medium text-slate-700">Expected Budget (₹)</span>
                         <input
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
@@ -878,17 +881,17 @@ export default function TransporterDashboard() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-blue-600">{trip.id}</span>
-                          <span className="text-xs text-slate-400">Ã‚Â· Booking: {trip.bookingId}</span>
+                          <span className="text-xs text-slate-400">· Booking: {trip.bookingId}</span>
                           <StatusBadge status={trip.status} />
                         </div>
                         <h4 className="text-base font-bold text-slate-900">{trip.route}</h4>
                         <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
                           <span className="flex items-center gap-1"><Truck size={14} /> {trip.truckNumber} ({trip.truckType})</span>
-                          <span>Ã‚Â·</span>
+                          <span>·</span>
                           <span className="font-medium text-slate-700">Driver: {trip.driverName}</span>
                           {trip.status === 'In Transit' && (
                             <>
-                              <span>Ã‚Â·</span>
+                              <span>·</span>
                               <span className="font-semibold text-emerald-600 flex items-center gap-1">
                                 <Clock size={13} /> ETA: {trip.eta}
                               </span>
@@ -990,9 +993,9 @@ export default function TransporterDashboard() {
             <div className="space-y-6">
               <PageHeading title="Payments & Earnings" subtitle="Monitor revenue, settlements and payment history." />
               <div className="grid gap-5 md:grid-cols-3">
-                <SmallStat label="Total Earnings" value="Ã¢â€šÂ¹8,45,000" icon={IndianRupee} />
-                <SmallStat label="Pending Payments" value="Ã¢â€šÂ¹1,25,000" icon={Clock} />
-                <SmallStat label="Settled Amount" value="Ã¢â€šÂ¹7,20,000" icon={CheckCircle2} />
+                <SmallStat label="Total Earnings" value="₹8,45,000" icon={IndianRupee} />
+                <SmallStat label="Pending Payments" value="₹1,25,000" icon={Clock} />
+                <SmallStat label="Settled Amount" value="₹7,20,000" icon={CheckCircle2} />
               </div>
             </div>
           )}
@@ -1003,7 +1006,7 @@ export default function TransporterDashboard() {
               <div className="grid gap-5 md:grid-cols-3">
                 <SmallStat label="Loads Posted" value={allLoads.length.toString()} icon={Package} />
                 <SmallStat label="Completed Trips" value="74" icon={CheckCircle2} />
-                <SmallStat label="Average Trip Budget" value="Ã¢â€šÂ¹24,500" icon={TrendingUp} />
+                <SmallStat label="Average Trip Budget" value="₹24,500" icon={TrendingUp} />
               </div>
             </div>
           )}
@@ -1029,8 +1032,8 @@ export default function TransporterDashboard() {
           )}
 
           <footer className="mt-10 flex flex-col justify-between gap-2 border-t border-slate-200 pt-5 text-xs text-slate-400 sm:flex-row">
-            <p>Ã‚Â© 2026 Transport Connect. All rights reserved.</p>
-            <p>Transporter Portal Ã‚Â· Active Session</p>
+            <p>© 2026 Transport Connect. All rights reserved.</p>
+            <p>Transporter Portal · Active Session</p>
           </footer>
         </div>
       </main>
@@ -1069,7 +1072,7 @@ function RouteDisplay({ from, to, stops }: { from: string; to: string; stops?: s
       <div className="flex items-center gap-1.5 font-medium text-slate-800">
         <MapPin size={14} className="shrink-0 text-blue-600" />
         <span>{from}</span>
-        <span className="text-slate-400">Ã¢â€ â€™</span>
+        <span className="text-slate-400">→</span>
         <span>{to}</span>
       </div>
       {hasStops && (
@@ -1078,7 +1081,7 @@ function RouteDisplay({ from, to, stops }: { from: string; to: string; stops?: s
           {stops.map((stop, i) => (
             <span key={i} className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">
               {stop}
-              {i < stops.length - 1 ? ' Ã‚Â·' : ''}
+              {i < stops.length - 1 ? ' ·' : ''}
             </span>
           ))}
         </div>
@@ -1131,5 +1134,6 @@ function SmallStat({ label, value, icon: Icon }: {
 }
 
 function ProfileField({ label, value }: { label: string; value: string }) {
-  return <div><p className="text-xs text-slate-500">{label}</p><p className="mt-1 font-medium text-slate-800">{value}</p></div>
+  return <div><p className="text-xs text-slate-500">{label}</p><p className="mt-1 font-medium text-slate-800">{value}</p>
+    </div>
 }

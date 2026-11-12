@@ -43,7 +43,7 @@ const fallbackMarketplaceLoads: MarketplaceLoadItem[] = [
     material: 'Electronics',
     vehicle: '32 FT Container',
     weight: '8 Ton',
-    budget: 'Ã¢â€šÂ¹28,000',
+    budget: '₹28,000',
     status: 'Open',
   },
   {
@@ -54,7 +54,7 @@ const fallbackMarketplaceLoads: MarketplaceLoadItem[] = [
     material: 'Spices & Agro',
     vehicle: '32 FT Multi-Axle',
     weight: '16 Ton',
-    budget: 'Ã¢â€šÂ¹52,000',
+    budget: '₹52,000',
     status: 'Open',
   },
 ]
@@ -250,13 +250,13 @@ export default function MarketplaceQuotationsPage() {
                     <div className="flex items-center gap-2 text-base font-bold text-slate-900">
                       <MapPin size={16} className="shrink-0 text-blue-600" />
                       <span>{load.from}</span>
-                      <span className="text-slate-400">Ã¢â€ â€™</span>
+                      <span className="text-slate-400">→</span>
                       <span>{load.to}</span>
                     </div>
                     {load.stops && load.stops.length > 0 && (
                       <div className="mt-1.5 flex flex-wrap items-center gap-1 text-xs text-slate-500">
                         <Navigation size={12} className="text-slate-400" />
-                        <span>Via: {load.stops.join(' Ã‚Â· ')}</span>
+                        <span>Via: {load.stops.join(' · ')}</span>
                       </div>
                     )}
                   </div>
@@ -317,19 +317,19 @@ export default function MarketplaceQuotationsPage() {
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-bold text-blue-600">{qt.id}</span>
-                      <span className="text-xs text-slate-400">Ã‚Â· Load: {qt.loadId}</span>
+                      <span className="text-xs text-slate-400">· Load: {qt.loadId}</span>
                       <QuoteStatusBadge status={qt.status} />
                     </div>
                     <h4 className="text-base font-bold text-slate-900">
-                      {qt.from} Ã¢â€ â€™ {qt.to}
+                      {qt.from} → {qt.to}
                     </h4>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
                       <span className="flex items-center gap-1 font-medium text-slate-700">
                         <Truck size={14} className="text-blue-600" /> {qt.truckOwner} ({qt.truckNumber})
                       </span>
-                      <span>Ã‚Â·</span>
+                      <span>·</span>
                       <span>{qt.vehicleType}</span>
-                      <span>Ã‚Â·</span>
+                      <span>·</span>
                       <span className="flex items-center gap-1">
                         <Clock size={13} /> ETA: {qt.etaDays}
                       </span>
@@ -343,7 +343,7 @@ export default function MarketplaceQuotationsPage() {
                     <div className="text-left md:text-right">
                       <p className="text-[11px] text-slate-400">Quoted Price</p>
                       <p className="text-lg font-extrabold text-slate-900">
-                        Ã¢â€šÂ¹{qt.amount.toLocaleString('en-IN')}
+                        ₹{qt.amount.toLocaleString('en-IN')}
                       </p>
                     </div>
 
@@ -383,7 +383,7 @@ export default function MarketplaceQuotationsPage() {
               <div>
                 <h3 className="font-bold text-slate-900">Submit Freight Quotation</h3>
                 <p className="text-xs text-slate-500">
-                  {quoteModalLoad.id}: {quoteModalLoad.from} Ã¢â€ â€™ {quoteModalLoad.to}
+                  {quoteModalLoad.id}: {quoteModalLoad.from} → {quoteModalLoad.to}
                 </p>
               </div>
               <button
@@ -441,7 +441,7 @@ export default function MarketplaceQuotationsPage() {
 
               <label className="block">
                 <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                  Your Offer Price (Ã¢â€šÂ¹) *
+                  Your Offer Price (₹) *
                 </span>
                 <div className="relative">
                   <IndianRupee size={15} className="absolute left-3.5 top-3 text-slate-400" />

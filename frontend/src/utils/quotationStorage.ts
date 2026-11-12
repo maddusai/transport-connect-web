@@ -18,37 +18,7 @@ export interface LoadQuotation {
 
 const QUOTATIONS_STORAGE_KEY = 'transport_connect_quotations'
 
-const initialDemoQuotations: LoadQuotation[] = [
-  {
-    id: 'QT-5001',
-    loadId: 'LD1001',
-    from: 'Hyderabad',
-    to: 'Bangalore',
-    vehicleType: '32 FT Container',
-    truckOwner: 'Sri Balaji Transports',
-    truckNumber: 'TS 09 AB 1234',
-    amount: 27500,
-    etaDays: '1 Day',
-    notes: 'GPS enabled container, ready for immediate loading.',
-    status: 'PENDING',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'QT-5002',
-    loadId: 'LD1002',
-    from: 'Vijayawada',
-    to: 'Chennai',
-    vehicleType: '14 FT Truck',
-    truckOwner: 'Venkateswara Logistics',
-    truckNumber: 'AP 16 CD 5678',
-    amount: 17500,
-    etaDays: '1 Day',
-    notes: 'Experienced driver on Chennai highway route.',
-    status: 'ACCEPTED',
-    tripStatus: 'BOOKED',
-    createdAt: new Date().toISOString(),
-  },
-]
+const initialDemoQuotations: LoadQuotation[] = []
 
 export function getStoredQuotations(): LoadQuotation[] {
   try {

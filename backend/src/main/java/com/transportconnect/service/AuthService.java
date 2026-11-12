@@ -58,11 +58,15 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmailOrPhone(request.getIdentifier(), request.getIdentifier())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new RuntimeException("Invalid mobile number / email or password."));
 
-        authenticationManager.authenticate(
+        try {
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), request.getPassword())
         );
+        } catch (Exception ex) {
+            throw new RuntimeException("Invalid mobile number / email or password.");
+        }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
         return mapToResponse(user, token);

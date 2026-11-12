@@ -267,7 +267,7 @@ export default function BookingFlowPage() {
                     <div className="flex items-center gap-2 pt-1 text-base font-bold text-slate-900">
                       <MapPin size={16} className="shrink-0 text-blue-600" />
                       <span>{bk.from}</span>
-                      <span className="text-slate-400">Ã¢â€ â€™</span>
+                      <span className="text-slate-400">→</span>
                       <span>{bk.to}</span>
                     </div>
 
@@ -275,16 +275,16 @@ export default function BookingFlowPage() {
                       <span className="flex items-center gap-1 font-medium text-slate-700">
                         <Truck size={14} className="text-blue-600" /> {bk.truckNumber} ({bk.vehicleType})
                       </span>
-                      <span>Ã‚Â·</span>
+                      <span>·</span>
                       <span>
                         Driver:{' '}
                         <b className={bk.driverName === 'Not Assigned' ? 'text-amber-600' : 'text-slate-800'}>
                           {bk.driverName}
                         </b>
                       </span>
-                      <span>Ã‚Â·</span>
+                      <span>·</span>
                       <span className="font-bold text-slate-900">
-                        Ã¢â€šÂ¹{bk.amount.toLocaleString('en-IN')}
+                        ₹{bk.amount.toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
@@ -500,7 +500,7 @@ export default function BookingFlowPage() {
             <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-slate-900">Rate Trip Experience</h3>
-                <p className="text-xs text-slate-500">{reviewBooking.truckOwner} Ã‚Â· {reviewBooking.driverName}</p>
+                <p className="text-xs text-slate-500">{reviewBooking.truckOwner} · {reviewBooking.driverName}</p>
               </div>
               <button onClick={() => setReviewBooking(null)} className="rounded-lg p-1.5 hover:bg-slate-100">
                 <X size={18} />
@@ -569,7 +569,7 @@ export default function BookingFlowPage() {
           onClose={() => setChatBooking(null)}
           tripId={`TRP-${chatBooking.id.replace('BK-', '')}`}
           bookingId={chatBooking.id}
-          route={`${chatBooking.from} Ã¢â€ â€™ ${chatBooking.to}`}
+          route={`${chatBooking.from} → ${chatBooking.to}`}
           currentUserId="USER-ACTIVE"
           currentUserName="Platform User"
           currentUserRole="Transporter"

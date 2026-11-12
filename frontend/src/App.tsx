@@ -1,3 +1,4 @@
+import UserProfileModal from './components/common/UserProfileModal'
 import { getCurrentUser, setAuthToken, setCurrentUser } from './services/apiClient'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
@@ -32,6 +33,7 @@ type AuthMode = 'login' | 'register'
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [authMode, setAuthMode] = useState<AuthMode>('login')
   const [dashboardRole, setDashboardRole] = useState<UserRole | null>(() => (getCurrentUser()?.role as UserRole) || null)
 
@@ -129,20 +131,46 @@ function App() {
             <a href="#about" className="hover:text-blue-700">About Us</a>
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <button
-              onClick={() => openAuth('login')}
-              className="rounded-lg px-4 py-2 font-semibold text-blue-700 hover:bg-blue-50"
-            >
-              Login
-            </button>
+          <div className="flex items-center gap-3">
+            {getCurrentUser() ? (
+              <>
+                <button
+                  onClick={() => setDashboardRole(getCurrentUser()?.role as UserRole)}
+                  className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+                >
+                  Open Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen(true)}
+                  title="View My Profile"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-slate-200 px-3 py-1.5 text-left hover:bg-slate-50"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                    {(getCurrentUser()?.name || 'U').slice(0, 2).toUpperCase()}
+                  </span>
+                  <span className="hidden text-sm font-bold text-slate-800 sm:inline">
+                    {getCurrentUser()?.name || 'My Profile'}
+                  </span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => openAuth('login')}
+                  className="rounded-lg px-4 py-2 font-semibold text-blue-700 hover:bg-blue-50"
+                >
+                  Login
+                </button>
 
-            <button
-              onClick={() => openAuth('register')}
-              className="rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800"
-            >
-              Register
-            </button>
+                <button
+                  onClick={() => openAuth('register')}
+                  className="rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800"
+                >
+                  Register
+                </button>
+              </>
+            )}
           </div>
 
           <button
@@ -410,7 +438,7 @@ function App() {
           </div>
 
           <p className="text-sm text-slate-500">
-            Ã‚Â© 2026 Transport Connect. All rights reserved.
+            © 2026 Transport Connect. All rights reserved.
           </p>
 
           <div className="flex gap-5 text-sm text-slate-500">
@@ -421,6 +449,8 @@ function App() {
 
         </div>
       </footer>
+
+      <UserProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
 
       {/* AUTHENTICATION MODAL */}
       <AuthModal
