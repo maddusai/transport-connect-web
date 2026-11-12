@@ -8,6 +8,7 @@ import {
   CheckCheck,
 } from 'lucide-react'
 import type { ChatMessage, ChatRole } from '../../utils/chatStorage'
+import { apiClient, getAuthToken, getCurrentUser } from '../../services/apiClient'
 import { getTripMessages, sendTripMessage } from '../../utils/chatStorage'
 
 interface TripChatModalProps {
@@ -91,7 +92,7 @@ export default function TripChatModal({
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Trip: <span className="font-semibold text-slate-700">{bookingId}</span> · {route}
+                Trip: <span className="font-semibold text-slate-700">{bookingId}</span> Ã‚Â· {route}
               </p>
             </div>
           </div>

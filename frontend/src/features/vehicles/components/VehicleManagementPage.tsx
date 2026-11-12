@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Truck,
   Plus,
@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import type { FleetVehicle, VehicleStatus } from '../../../utils/vehicleStorage'
+import { apiClient, getAuthToken, getCurrentUser } from '../../../services/apiClient'
 import {
   getFleetVehicles,
   addFleetVehicle,

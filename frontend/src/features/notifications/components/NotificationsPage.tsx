@@ -189,7 +189,7 @@ export default function NotificationsPage() {
                     </p>
                     {item.actionLabel && (
                       <span className="mt-2.5 inline-block text-xs font-semibold text-blue-600 hover:underline">
-                        {item.actionLabel} →
+                        {item.actionLabel} Ã¢â€ â€™
                       </span>
                     )}
                   </div>

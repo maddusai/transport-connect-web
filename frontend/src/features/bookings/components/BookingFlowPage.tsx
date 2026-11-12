@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ClipboardList,
   Search,
@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react'
 import type { TransportBooking, BookingTripStage } from '../../../utils/bookingStorage'
+import { apiClient, getAuthToken } from '../../../services/apiClient'
 import {
   getBookings,
   assignBookingDriver,
@@ -43,7 +44,41 @@ const STAGE_LABELS: Record<BookingTripStage, string> = {
 }
 
 export default function BookingFlowPage() {
-  const [bookings, setBookings] = useState<TransportBooking[]>(getBookings)
+  const [bookings, setBookings] = useState<TransportBooking[]>(() => (getAuthToken() ? [] : getBookings()))
+
+  useEffect(() => {
+    if (!getAuthToken()) return
+    apiClient
+      .getMyBookings()
+      .then((list) => {
+        if (Array.isArray(list)) {
+          const mapStage = (s: string): BookingTripStage => {
+            if (s === 'CONFIRMED') return 'DRIVER_ASSIGNED'
+            if (s === 'IN_TRANSIT') return 'IN_TRANSIT'
+            if (s === 'COMPLETED') return 'COMPLETED'
+            return 'BOOKED'
+          }
+          setBookings(
+            list.map((b: any) => ({
+              id: String(b.id),
+              loadId: b.loadId ? String(b.loadId) : b.bookingCode || `LD-${b.id}`,
+              from: b.pickupCity,
+              to: b.dropCity,
+              material: 'Freight Cargo',
+              vehicleType: b.vehicleType || 'Truck',
+              truckNumber: b.vehicleRegistration || 'Assigned Fleet',
+              truckOwner: b.transporterCompany || b.transporterName || 'Transporter',
+              driverName: b.driverName || 'Not Assigned',
+              driverPhone: b.driverPhone || b.transporterPhone || '+91 98765 43210',
+              amount: Number(b.totalAmount || 0),
+              stage: mapStage(b.status),
+              createdAt: b.createdAt || new Date().toISOString(),
+            })),
+          )
+        }
+      })
+      .catch(() => {})
+  }, [])
   const [searchQuery, setSearchQuery] = useState('')
   const [stageFilter, setStageFilter] = useState<'ALL' | 'ACTIVE' | 'COMPLETED'>('ALL')
 
@@ -232,7 +267,7 @@ export default function BookingFlowPage() {
                     <div className="flex items-center gap-2 pt-1 text-base font-bold text-slate-900">
                       <MapPin size={16} className="shrink-0 text-blue-600" />
                       <span>{bk.from}</span>
-                      <span className="text-slate-400">→</span>
+                      <span className="text-slate-400">Ã¢â€ â€™</span>
                       <span>{bk.to}</span>
                     </div>
 
@@ -240,16 +275,16 @@ export default function BookingFlowPage() {
                       <span className="flex items-center gap-1 font-medium text-slate-700">
                         <Truck size={14} className="text-blue-600" /> {bk.truckNumber} ({bk.vehicleType})
                       </span>
-                      <span>·</span>
+                      <span>Ã‚Â·</span>
                       <span>
                         Driver:{' '}
                         <b className={bk.driverName === 'Not Assigned' ? 'text-amber-600' : 'text-slate-800'}>
                           {bk.driverName}
                         </b>
                       </span>
-                      <span>·</span>
+                      <span>Ã‚Â·</span>
                       <span className="font-bold text-slate-900">
-                        ₹{bk.amount.toLocaleString('en-IN')}
+                        Ã¢â€šÂ¹{bk.amount.toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
@@ -465,7 +500,7 @@ export default function BookingFlowPage() {
             <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-slate-900">Rate Trip Experience</h3>
-                <p className="text-xs text-slate-500">{reviewBooking.truckOwner} · {reviewBooking.driverName}</p>
+                <p className="text-xs text-slate-500">{reviewBooking.truckOwner} Ã‚Â· {reviewBooking.driverName}</p>
               </div>
               <button onClick={() => setReviewBooking(null)} className="rounded-lg p-1.5 hover:bg-slate-100">
                 <X size={18} />
@@ -534,7 +569,7 @@ export default function BookingFlowPage() {
           onClose={() => setChatBooking(null)}
           tripId={`TRP-${chatBooking.id.replace('BK-', '')}`}
           bookingId={chatBooking.id}
-          route={`${chatBooking.from} → ${chatBooking.to}`}
+          route={`${chatBooking.from} Ã¢â€ â€™ ${chatBooking.to}`}
           currentUserId="USER-ACTIVE"
           currentUserName="Platform User"
           currentUserRole="Transporter"

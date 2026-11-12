@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { getCustomerLoads, saveMarketplaceLoads } from '../../../utils/loadStorage'
 import LiveTripTrackingModal from '../../../components/common/LiveTripTrackingModal'
 import type { TrackingTripData } from '../../../components/common/LiveTripTrackingModal'
 import TripChatModal from '../../../components/common/TripChatModal'
+import { apiClient, getAuthToken } from '../../../services/apiClient'
 import {
   LayoutDashboard,
   Package,
@@ -90,17 +91,17 @@ const menuItems = [
 ]
 
 const initialDemoLoads: TransporterLoad[] = [
-  { id: 'LD1001', from: 'Hyderabad', to: 'Bangalore', stops: ['Kurnool', 'Anantapur'], material: 'Electronics', vehicle: '32 FT Container', weight: '8 Ton', budget: '₹28,000', status: 'Open' },
-  { id: 'LD1002', from: 'Vijayawada', to: 'Chennai', stops: ['Nellore'], material: 'Agricultural Goods', vehicle: '14 FT Truck', weight: '5 Ton', budget: '₹18,000', status: 'Assigned' },
-  { id: 'LD1003', from: 'Warangal', to: 'Pune', stops: ['Hyderabad', 'Solapur'], material: 'Construction Materials', vehicle: '20 FT Truck', weight: '12 Ton', budget: '₹35,000', status: 'In Transit' },
-  { id: 'LD1004', from: 'Visakhapatnam', to: 'Hyderabad', stops: ['Rajahmundry', 'Vijayawada'], material: 'Industrial Goods', vehicle: 'Container', weight: '10 Ton', budget: '₹24,000', status: 'Completed' },
+  { id: 'LD1001', from: 'Hyderabad', to: 'Bangalore', stops: ['Kurnool', 'Anantapur'], material: 'Electronics', vehicle: '32 FT Container', weight: '8 Ton', budget: 'Ã¢â€šÂ¹28,000', status: 'Open' },
+  { id: 'LD1002', from: 'Vijayawada', to: 'Chennai', stops: ['Nellore'], material: 'Agricultural Goods', vehicle: '14 FT Truck', weight: '5 Ton', budget: 'Ã¢â€šÂ¹18,000', status: 'Assigned' },
+  { id: 'LD1003', from: 'Warangal', to: 'Pune', stops: ['Hyderabad', 'Solapur'], material: 'Construction Materials', vehicle: '20 FT Truck', weight: '12 Ton', budget: 'Ã¢â€šÂ¹35,000', status: 'In Transit' },
+  { id: 'LD1004', from: 'Visakhapatnam', to: 'Hyderabad', stops: ['Rajahmundry', 'Vijayawada'], material: 'Industrial Goods', vehicle: 'Container', weight: '10 Ton', budget: 'Ã¢â€šÂ¹24,000', status: 'Completed' },
 ]
 
 const demoTripsList: TransporterTrip[] = [
   {
     id: 'TRP-84920',
     bookingId: 'BK-10492',
-    route: 'Hyderabad → Bangalore',
+    route: 'Hyderabad Ã¢â€ â€™ Bangalore',
     from: 'Hyderabad, Uppal',
     to: 'Bangalore, Electronic City',
     stops: ['Kurnool Bypass', 'Anantapur Hub'],
@@ -117,7 +118,7 @@ const demoTripsList: TransporterTrip[] = [
   {
     id: 'TRP-84921',
     bookingId: 'BK-10493',
-    route: 'Vijayawada → Chennai',
+    route: 'Vijayawada Ã¢â€ â€™ Chennai',
     from: 'Vijayawada, Auto Nagar',
     to: 'Chennai, Ambattur',
     stops: ['Guntur', 'Nellore Bypass'],
@@ -134,7 +135,7 @@ const demoTripsList: TransporterTrip[] = [
   {
     id: 'TRP-84918',
     bookingId: 'BK-10489',
-    route: 'Warangal → Hyderabad',
+    route: 'Warangal Ã¢â€ â€™ Hyderabad',
     from: 'Warangal MIDC',
     to: 'Hyderabad Cherlapally',
     stops: [],
@@ -197,7 +198,79 @@ export default function TransporterDashboard() {
   const [vehicle, setVehicle] = useState('32 FT Container')
   const [budget, setBudget] = useState('')
 
-  const [trips] = useState<TransporterTrip[]>(demoTripsList)
+  const [trips, setTrips] = useState<TransporterTrip[]>(() => (getAuthToken() ? [] : demoTripsList))
+  const [backendLoads, setBackendLoads] = useState<TransporterLoad[]>([])
+  const [trucks, setTrucks] = useState(() => (getAuthToken() ? [] : initialTrucks))
+
+  useEffect(() => {
+    apiClient
+      .getOpenLoads()
+      .then((list) => {
+        if (Array.isArray(list)) {
+          setBackendLoads(
+            list.map((l: any) => ({
+              id: String(l.id),
+              from: l.pickupCity,
+              to: l.dropCity,
+              stops: [],
+              material: l.materialType || 'General Cargo',
+              vehicle: l.requiredVehicleType || 'Truck',
+              weight: `${l.weightTons ?? 10} Ton`,
+              budget: l.offeredPrice ? `â‚¹${Number(l.offeredPrice).toLocaleString('en-IN')}` : 'Not specified',
+              status: l.status === 'IN_TRANSIT' ? 'In Transit' : l.status === 'DELIVERED' ? 'Completed' : 'Open',
+              createdAt: l.createdAt,
+            })),
+          )
+        }
+      })
+      .catch(() => {})
+
+    if (!getAuthToken()) return
+
+    apiClient
+      .getMyVehicles()
+      .then((list) => {
+        if (Array.isArray(list)) {
+          setTrucks(
+            list.map((v: any) => ({
+              number: v.registrationNumber,
+              type: v.vehicleType,
+              capacity: `${v.capacityTons} Ton`,
+              driver: v.driverName || 'Not Assigned',
+              status: v.status === 'IN_TRANSIT' || v.status === 'BOOKED' ? 'On Trip' : v.status === 'MAINTENANCE' ? 'Maintenance' : 'Available',
+            })),
+          )
+        }
+      })
+      .catch(() => {})
+
+    apiClient
+      .getMyBookings()
+      .then((list) => {
+        if (Array.isArray(list)) {
+          setTrips(
+            list.map((b: any) => ({
+              id: `TRP-${b.id}`,
+              bookingId: String(b.id),
+              route: `${b.pickupCity} â†’ ${b.dropCity}`,
+              from: b.pickupCity,
+              to: b.dropCity,
+              stops: [],
+              driverName: b.driverName || 'Assigned Driver',
+              driverPhone: b.driverPhone || b.transporterPhone || '+91 98765 43210',
+              truckNumber: b.vehicleRegistration || 'Fleet Vehicle',
+              truckType: b.vehicleType || '32 FT Container',
+              totalDistanceKm: 520,
+              coveredDistanceKm: b.status === 'COMPLETED' ? 520 : Math.round(((b.progressPercent || 35) / 100) * 520),
+              eta: b.estimatedArrival || (b.status === 'COMPLETED' ? 'Delivered' : '3 hrs 30 mins'),
+              speedKmH: Number(b.speedKmph ?? 60),
+              status: b.status === 'COMPLETED' ? 'Completed' : b.status === 'IN_TRANSIT' ? 'In Transit' : 'Pending',
+            })),
+          )
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const [trackingModalOpen, setTrackingModalOpen] = useState(false)
   const [selectedTrackingTrip, setSelectedTrackingTrip] = useState<TrackingTripData | undefined>()
@@ -214,7 +287,7 @@ export default function TransporterDashboard() {
       material: load.material,
       vehicle: load.vehicle,
       weight: `${load.weight} Ton`,
-      budget: load.amount ? `₹${Number(load.amount).toLocaleString('en-IN')}` : 'Not specified',
+      budget: load.amount ? `Ã¢â€šÂ¹${Number(load.amount).toLocaleString('en-IN')}` : 'Not specified',
       status:
         load.status === 'IN_TRANSIT'
           ? 'In Transit'
@@ -223,16 +296,14 @@ export default function TransporterDashboard() {
             : 'Open',
     }))
 
-    const combined = [...transporterCustomLoads, ...customerLoads, ...initialDemoLoads]
+    const combined = getAuthToken() ? [...backendLoads] : [...backendLoads, ...transporterCustomLoads, ...customerLoads, ...initialDemoLoads]
     const uniqueMap = new Map<string, TransporterLoad>()
     combined.forEach((item) => uniqueMap.set(item.id, item))
     const mergedList = Array.from(uniqueMap.values())
 
     saveMarketplaceLoads(mergedList)
     return mergedList
-  }, [transporterCustomLoads])
-
-  const [trucks] = useState(initialTrucks)
+  }, [backendLoads, transporterCustomLoads])
 
   const filteredLoads = allLoads.filter((load) => {
     const stopsText = (load.stops || []).join(' ')
@@ -262,7 +333,7 @@ export default function TransporterDashboard() {
 
     const cleanBudgetNumber = budget.replace(/[^0-9]/g, '')
     const formattedBudget = cleanBudgetNumber
-      ? `₹${Number(cleanBudgetNumber).toLocaleString('en-IN')}`
+      ? `Ã¢â€šÂ¹${Number(cleanBudgetNumber).toLocaleString('en-IN')}`
       : 'Negotiable'
 
     const newLoad: TransporterLoad = {
@@ -323,7 +394,7 @@ export default function TransporterDashboard() {
     { label: 'Total Loads', value: allLoads.length.toString(), change: '+14.2%', icon: Package, color: 'bg-blue-50 text-blue-600' },
     { label: 'Active Trips', value: '36', change: '+8.2%', icon: Truck, color: 'bg-indigo-50 text-indigo-600' },
     { label: 'Available Trucks', value: '18', change: 'Fleet ready', icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-600' },
-    { label: 'Monthly Revenue', value: '₹8.45L', change: '+15.3%', icon: IndianRupee, color: 'bg-amber-50 text-amber-600' },
+    { label: 'Monthly Revenue', value: 'Ã¢â€šÂ¹8.45L', change: '+15.3%', icon: IndianRupee, color: 'bg-amber-50 text-amber-600' },
   ]
 
   return (
@@ -438,7 +509,7 @@ export default function TransporterDashboard() {
             <div className="space-y-7">
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-900">Welcome back, Sai! 👋</h3>
+                  <h3 className="text-2xl font-bold text-slate-900">Welcome back, Sai! Ã°Å¸â€˜â€¹</h3>
                   <p className="mt-1 text-sm text-slate-500">Here is what is happening with your transport business today.</p>
                 </div>
                 <button
@@ -495,7 +566,7 @@ export default function TransporterDashboard() {
                   <div className="mt-5 flex items-center justify-between">
                     <div>
                       <p className="text-xs text-slate-500">Total revenue</p>
-                      <p className="mt-1 text-xl font-bold text-slate-900">₹42,85,000</p>
+                      <p className="mt-1 text-xl font-bold text-slate-900">Ã¢â€šÂ¹42,85,000</p>
                     </div>
                     <span className="flex items-center gap-1 text-sm font-semibold text-emerald-600"><ArrowUpRight size={17} /> 15.3%</span>
                   </div>
@@ -692,7 +763,7 @@ export default function TransporterDashboard() {
                       </label>
 
                       <label className="block">
-                        <span className="mb-2 block text-sm font-medium text-slate-700">Expected Budget (₹)</span>
+                        <span className="mb-2 block text-sm font-medium text-slate-700">Expected Budget (Ã¢â€šÂ¹)</span>
                         <input
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
@@ -807,17 +878,17 @@ export default function TransporterDashboard() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-blue-600">{trip.id}</span>
-                          <span className="text-xs text-slate-400">· Booking: {trip.bookingId}</span>
+                          <span className="text-xs text-slate-400">Ã‚Â· Booking: {trip.bookingId}</span>
                           <StatusBadge status={trip.status} />
                         </div>
                         <h4 className="text-base font-bold text-slate-900">{trip.route}</h4>
                         <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
                           <span className="flex items-center gap-1"><Truck size={14} /> {trip.truckNumber} ({trip.truckType})</span>
-                          <span>·</span>
+                          <span>Ã‚Â·</span>
                           <span className="font-medium text-slate-700">Driver: {trip.driverName}</span>
                           {trip.status === 'In Transit' && (
                             <>
-                              <span>·</span>
+                              <span>Ã‚Â·</span>
                               <span className="font-semibold text-emerald-600 flex items-center gap-1">
                                 <Clock size={13} /> ETA: {trip.eta}
                               </span>
@@ -919,9 +990,9 @@ export default function TransporterDashboard() {
             <div className="space-y-6">
               <PageHeading title="Payments & Earnings" subtitle="Monitor revenue, settlements and payment history." />
               <div className="grid gap-5 md:grid-cols-3">
-                <SmallStat label="Total Earnings" value="₹8,45,000" icon={IndianRupee} />
-                <SmallStat label="Pending Payments" value="₹1,25,000" icon={Clock} />
-                <SmallStat label="Settled Amount" value="₹7,20,000" icon={CheckCircle2} />
+                <SmallStat label="Total Earnings" value="Ã¢â€šÂ¹8,45,000" icon={IndianRupee} />
+                <SmallStat label="Pending Payments" value="Ã¢â€šÂ¹1,25,000" icon={Clock} />
+                <SmallStat label="Settled Amount" value="Ã¢â€šÂ¹7,20,000" icon={CheckCircle2} />
               </div>
             </div>
           )}
@@ -932,7 +1003,7 @@ export default function TransporterDashboard() {
               <div className="grid gap-5 md:grid-cols-3">
                 <SmallStat label="Loads Posted" value={allLoads.length.toString()} icon={Package} />
                 <SmallStat label="Completed Trips" value="74" icon={CheckCircle2} />
-                <SmallStat label="Average Trip Budget" value="₹24,500" icon={TrendingUp} />
+                <SmallStat label="Average Trip Budget" value="Ã¢â€šÂ¹24,500" icon={TrendingUp} />
               </div>
             </div>
           )}
@@ -958,8 +1029,8 @@ export default function TransporterDashboard() {
           )}
 
           <footer className="mt-10 flex flex-col justify-between gap-2 border-t border-slate-200 pt-5 text-xs text-slate-400 sm:flex-row">
-            <p>© 2026 Transport Connect. All rights reserved.</p>
-            <p>Transporter Portal · Active Session</p>
+            <p>Ã‚Â© 2026 Transport Connect. All rights reserved.</p>
+            <p>Transporter Portal Ã‚Â· Active Session</p>
           </footer>
         </div>
       </main>
@@ -998,7 +1069,7 @@ function RouteDisplay({ from, to, stops }: { from: string; to: string; stops?: s
       <div className="flex items-center gap-1.5 font-medium text-slate-800">
         <MapPin size={14} className="shrink-0 text-blue-600" />
         <span>{from}</span>
-        <span className="text-slate-400">→</span>
+        <span className="text-slate-400">Ã¢â€ â€™</span>
         <span>{to}</span>
       </div>
       {hasStops && (
@@ -1007,7 +1078,7 @@ function RouteDisplay({ from, to, stops }: { from: string; to: string; stops?: s
           {stops.map((stop, i) => (
             <span key={i} className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">
               {stop}
-              {i < stops.length - 1 ? ' ·' : ''}
+              {i < stops.length - 1 ? ' Ã‚Â·' : ''}
             </span>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { apiClient, getAuthToken } from '../../../services/apiClient'
 import { getCustomerLoads, getMarketplaceLoads, getQuotations } from '../../../utils/loadStorage'
 import { getOwnerDrivers, updateDriverVerification } from '../../../utils/driverStorage'
 import { getPaymentSubmissions } from '../../../utils/paymentStorage'
@@ -102,8 +103,8 @@ const menuItems: { name: AdminPage; icon: typeof LayoutDashboard }[] = [
 
 function formatCurrency(value: string | number): string {
   const amount = Number(String(value).replace(/[^0-9.]/g, ''))
-  if (!Number.isFinite(amount)) return '₹0'
-  return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+  if (!Number.isFinite(amount)) return 'Ã¢â€šÂ¹0'
+  return `Ã¢â€šÂ¹${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
 }
 
 function formatStatus(value: string): string {
@@ -128,7 +129,7 @@ function getAdminLoads(): AdminLoad[] {
   const customerLoads = getCustomerLoads().map((load) => ({
     id: load.id,
     customer: 'Customer',
-    route: `${load.from} → ${load.to}`,
+    route: `${load.from} Ã¢â€ â€™ ${load.to}`,
     vehicle: load.vehicle,
     status: formatStatus(String(load.status || 'Open')),
     budget: formatCurrency(load.amount),
@@ -137,7 +138,7 @@ function getAdminLoads(): AdminLoad[] {
   const marketplaceLoads = getMarketplaceLoads().map((load) => ({
     id: load.id,
     customer: 'Customer',
-    route: `${load.from} → ${load.to}`,
+    route: `${load.from} Ã¢â€ â€™ ${load.to}`,
     vehicle: load.vehicle,
     status: formatStatus(String(load.status || 'Open')),
     budget: formatCurrency(load.budget),
@@ -155,7 +156,7 @@ function getAdminBookings(): AdminBooking[] {
     .filter((quotation) => quotation.status === 'ACCEPTED')
     .map((quotation) => ({
       id: quotation.id,
-      route: `${quotation.from} → ${quotation.to}`,
+      route: `${quotation.from} Ã¢â€ â€™ ${quotation.to}`,
       customer: 'Customer',
       owner: quotation.truckOwner || 'Truck Owner',
       amount: formatCurrency(quotation.amount),
@@ -431,7 +432,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                   <SectionHeader title="Recent registrations" action="View users" onAction={() => setActivePage('Customers')} />
-                  <div className="mt-4 space-y-3">{users.slice(0, 3).map((user) => <div key={user.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-4"><div><p className="font-semibold">{user.name}</p><p className="mt-1 text-xs text-slate-500">{user.role} · {user.joined}</p></div><StatusPill status={user.status} /></div>)}</div>
+                  <div className="mt-4 space-y-3">{users.slice(0, 3).map((user) => <div key={user.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-4"><div><p className="font-semibold">{user.name}</p><p className="mt-1 text-xs text-slate-500">{user.role} Ã‚Â· {user.joined}</p></div><StatusPill status={user.status} /></div>)}</div>
                 </div>
               </div>
             </>
@@ -566,7 +567,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
               <div>
                 <h3 className="font-bold">{selectedDriverDocument.title} preview</h3>
-                <p className="text-xs text-slate-500">Driver document — demo browser storage</p>
+                <p className="text-xs text-slate-500">Driver document Ã¢â‚¬â€ demo browser storage</p>
               </div>
               <button type="button" onClick={() => setSelectedDriverDocument(null)} className="rounded-lg p-2 hover:bg-slate-100" aria-label="Close document preview"><X /></button>
             </div>
@@ -671,7 +672,7 @@ function TrackingPage() {
                   </div>
                   <div className="rounded-xl bg-slate-50 p-3">
                     <p className="text-xs text-slate-500">GPS accuracy</p>
-                    <p className="mt-1 text-sm font-semibold">{location?.accuracy == null ? 'Not available' : `±${Math.round(location.accuracy)} metres`}</p>
+                    <p className="mt-1 text-sm font-semibold">{location?.accuracy == null ? 'Not available' : `Ã‚Â±${Math.round(location.accuracy)} metres`}</p>
                   </div>
                   <div className="rounded-xl bg-slate-50 p-3">
                     <p className="text-xs text-slate-500">Last location update</p>
@@ -853,7 +854,7 @@ function PaymentsPage() {
       )}
 
       <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">
-        <p className="font-bold">Demo storage — verification is not automatic yet</p>
+        <p className="font-bold">Demo storage Ã¢â‚¬â€ verification is not automatic yet</p>
         <p className="mt-1">
           These submissions are read from this browser's localStorage, so they appear only when Customer and Admin dashboards use the same browser profile. An uploaded slip and UTR are not proof of cleared funds. Production verification requires a secure backend and payment-provider/bank confirmation; do not mark a payment successful from the uploaded image alone.
         </p>

@@ -49,7 +49,7 @@ const initialContacts: ChatContact[] = [
     online: true,
     lastSeen: 'Online',
     bookingId: 'TC-BOOK-1024',
-    route: 'Hyderabad → Vijayawada',
+    route: 'Hyderabad Ã¢â€ â€™ Vijayawada',
     unread: 2,
     messages: [
       { id: 'm1', text: 'Hello! I have received your load request.', time: '10:20 AM', sender: 'them' },
@@ -66,7 +66,7 @@ const initialContacts: ChatContact[] = [
     online: false,
     lastSeen: 'Last seen 9:42 AM',
     bookingId: 'TC-BOOK-1018',
-    route: 'KPHB → Guntur',
+    route: 'KPHB Ã¢â€ â€™ Guntur',
     unread: 0,
     messages: [
       { id: 'm5', text: 'I have started towards the loading location.', time: 'Yesterday', sender: 'them' },
@@ -81,7 +81,7 @@ const initialContacts: ChatContact[] = [
     online: true,
     lastSeen: 'Online',
     bookingId: 'TC-LOAD-0992',
-    route: 'Chennai → Bengaluru',
+    route: 'Chennai Ã¢â€ â€™ Bengaluru',
     unread: 0,
     messages: [
       { id: 'm7', text: 'Quotation shared. Please review the price.', time: 'Yesterday', sender: 'them' },
@@ -281,7 +281,7 @@ export default function ChatPage({ onBack }: { onBack?: () => void }) {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-bold">Booking details</p>
-                  <p className="mt-1">{activeContact.bookingId} · {activeContact.route}</p>
+                  <p className="mt-1">{activeContact.bookingId} Ã‚Â· {activeContact.route}</p>
                 </div>
                 <button onClick={() => setShowInfo(false)} aria-label="Close booking details"><X size={16} /></button>
               </div>
@@ -291,7 +291,7 @@ export default function ChatPage({ onBack }: { onBack?: () => void }) {
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 bg-slate-50 px-4 py-2.5 text-xs text-slate-600 sm:px-6">
             <Truck size={15} className="text-blue-600" />
             <span className="font-semibold">{activeContact.bookingId}</span>
-            <span className="text-slate-300">•</span>
+            <span className="text-slate-300">Ã¢â‚¬Â¢</span>
             <span className="truncate">{activeContact.route}</span>
             <button onClick={() => setShowInfo((value) => !value)} className="ml-auto font-semibold text-blue-600 hover:underline">View details</button>
           </div>
@@ -353,7 +353,7 @@ export default function ChatPage({ onBack }: { onBack?: () => void }) {
                 <Send size={18} />
               </button>
             </div>
-            <p className="mt-2 pl-11 text-[10px] text-slate-400">Enter to send · Shift + Enter for a new line</p>
+            <p className="mt-2 pl-11 text-[10px] text-slate-400">Enter to send Ã‚Â· Shift + Enter for a new line</p>
           </form>
         </div>
       </div>

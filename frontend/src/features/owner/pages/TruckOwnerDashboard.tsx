@@ -82,7 +82,7 @@ const sampleLoads: Load[] = [
     material: 'Electronics',
     weight: '5 Ton',
     vehicle: 'Container',
-    budget: '₹18,000',
+    budget: 'Ã¢â€šÂ¹18,000',
     date: '15 Nov 2026',
   },
   {
@@ -92,7 +92,7 @@ const sampleLoads: Load[] = [
     material: 'Agricultural Goods',
     weight: '8 Ton',
     vehicle: 'Open Truck',
-    budget: '₹22,000',
+    budget: 'Ã¢â€šÂ¹22,000',
     date: '17 Nov 2026',
   },
   {
@@ -102,7 +102,7 @@ const sampleLoads: Load[] = [
     material: 'Construction Materials',
     weight: '10 Ton',
     vehicle: 'Heavy Truck',
-    budget: '₹30,000',
+    budget: 'Ã¢â€šÂ¹30,000',
     date: '19 Nov 2026',
   },
 ]
@@ -153,7 +153,7 @@ export default function TruckOwnerDashboard() {
         weight: `${load.weight} Ton`,
         vehicle: load.vehicle,
         budget: load.amount
-          ? `₹${Number(load.amount).toLocaleString('en-IN')}`
+          ? `Ã¢â€šÂ¹${Number(load.amount).toLocaleString('en-IN')}`
           : 'Not specified',
         date: load.date || 'Date not specified',
       }))
@@ -649,7 +649,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                             Load ID: {quotation.loadId}
                           </h4>
                           <p className="mt-1 text-sm text-slate-500">
-                            {quotation.from} → {quotation.to}
+                            {quotation.from} Ã¢â€ â€™ {quotation.to}
                           </p>
                         </div>
                         <span
@@ -669,7 +669,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                         <div>
                           <p className="text-xs text-slate-500">Your Quotation</p>
                           <p className="mt-1 text-xl font-bold text-green-600">
-                            ₹{Number(quotation.amount).toLocaleString('en-IN')}
+                            Ã¢â€šÂ¹{Number(quotation.amount).toLocaleString('en-IN')}
                           </p>
                         </div>
                         <p className="text-xs text-slate-400">
@@ -717,7 +717,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                                 {trip.loadId}
                               </span>
                               <h4 className="mt-3 text-lg font-bold text-slate-900">
-                                {trip.from} → {trip.to}
+                                {trip.from} Ã¢â€ â€™ {trip.to}
                               </h4>
                               <p className="mt-1 text-xs text-slate-500">
                                 Quotation ID: {trip.id}
@@ -736,7 +736,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                             <div>
                               <p className="text-xs text-slate-500">Accepted Amount</p>
                               <p className="mt-1 text-lg font-bold text-green-700">
-                                ₹{Number(trip.amount).toLocaleString('en-IN')}
+                                Ã¢â€šÂ¹{Number(trip.amount).toLocaleString('en-IN')}
                               </p>
                             </div>
                             <div>
@@ -767,7 +767,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
                             ) : currentStatus === 'BOOKED' && drivers.some((driver) => driver.status === 'AVAILABLE') ? (
                               <select defaultValue="" onChange={(e) => handleAssignDriver(trip.id, e.target.value)} className="w-full max-w-md rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
                                 <option value="" disabled>Select an available registered driver</option>
-                                {drivers.filter((driver) => driver.status === 'AVAILABLE').map((driver) => <option key={driver.id} value={driver.id}>{driver.name} — {driver.phone}</option>)}
+                                {drivers.filter((driver) => driver.status === 'AVAILABLE').map((driver) => <option key={driver.id} value={driver.id}>{driver.name} Ã¢â‚¬â€ {driver.phone}</option>)}
                               </select>
                             ) : (
                               <p className="text-sm text-slate-500">
@@ -933,7 +933,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
 
             <div className="mb-5 rounded-xl bg-slate-50 p-4 text-sm">
               <p className="font-semibold">
-                {selectedLoad.from} → {selectedLoad.to}
+                {selectedLoad.from} Ã¢â€ â€™ {selectedLoad.to}
               </p>
               <p className="mt-2 text-slate-500">
                 Customer budget: {selectedLoad.budget}
@@ -941,7 +941,7 @@ const handleAssignDriver = (tripId: string, driverId: string) => {
             </div>
 
             <label className="mb-2 block text-sm font-medium">
-              Your Quotation (₹)
+              Your Quotation (Ã¢â€šÂ¹)
             </label>
 
             <input
@@ -997,7 +997,7 @@ function Overview({
     },
     {
       label: 'Total Earnings',
-      value: '₹45,000',
+      value: 'Ã¢â€šÂ¹45,000',
       icon: Wallet,
       color: 'bg-green-50 text-green-600',
       change: 'Demo earnings',
@@ -1009,7 +1009,7 @@ function Overview({
       <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h3 className="text-2xl font-bold">
-            Welcome back, Truck Owner! 👋
+            Welcome back, Truck Owner! Ã°Å¸â€˜â€¹
           </h3>
           <p className="mt-2 text-sm text-slate-500">
             Here is what is happening with your transport business.
@@ -1059,7 +1059,7 @@ function Overview({
               <p className="text-sm text-blue-100">
                 Business Performance
               </p>
-              <h3 className="mt-2 text-3xl font-bold">₹45,000</h3>
+              <h3 className="mt-2 text-3xl font-bold">Ã¢â€šÂ¹45,000</h3>
               <p className="mt-2 text-sm text-blue-100">
                 Total demo earnings
               </p>
@@ -1236,7 +1236,7 @@ function EmptySection({
       </p>
 
       <p className="mt-5 rounded-full bg-amber-50 px-4 py-2 text-xs font-medium text-amber-700">
-        UI setup – functionality will be connected in the next stages
+        UI setup Ã¢â‚¬â€œ functionality will be connected in the next stages
       </p>
     </div>
   )

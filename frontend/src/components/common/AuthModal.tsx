@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 
-import OTPModal from './OTPModal'
 import RegistrationSuccess from './RegistrationSuccess'
 import LocationAutocompleteInput from './LocationAutocompleteInput'
 
@@ -22,6 +21,7 @@ import {
   registerUser,
   authenticateUser,
 } from '../../utils/authStorage'
+import { apiClient, setAuthToken, setCurrentUser } from '../../services/apiClient'
 
 type UserRole =
   | 'CUSTOMER'
@@ -49,7 +49,6 @@ function AuthModal({
   const [role, setRole] = useState<UserRole>('CUSTOMER')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const [otpOpen, setOtpOpen] = useState(false)
   const [successOpen, setSuccessOpen] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -71,6 +70,7 @@ function AuthModal({
       setRole('CUSTOMER')
       setError('')
       setShowPassword(false)
+      localStorage.removeItem('transport_connect_registered_users')
     }
   }, [isOpen, initialMode])
 
@@ -147,7 +147,7 @@ function AuthModal({
     return ''
   }
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const validationError = validateForm()
@@ -160,7 +160,7 @@ function AuthModal({
     setError('')
 
     if (mode === 'register') {
-      setOtpOpen(true)
+      await handleDirectRegister()
       return
     }
 
@@ -169,55 +169,73 @@ function AuthModal({
       return
     }
 
-    const authenticatedUser = authenticateUser(
-      formData.mobile,
-      formData.password,
-    )
-
-    if (!authenticatedUser) {
-      setError(
-        'Invalid mobile number or password. Please register first.',
-      )
-      return
-    }
-
-    if (authenticatedUser.role !== role) {
-      setError(
-        `Please select your registered role: ${authenticatedUser.role}`,
-      )
-      return
-    }
-
-    onLogin(authenticatedUser.role)
+    apiClient
+      .login(formData.mobile, formData.password)
+      .then((response) => {
+        if (response.role !== role) {
+          setError(`Please select your registered role: ${response.role}`)
+          return
+        }
+        setAuthToken(response.token)
+        setCurrentUser(response)
+        onLogin(response.role as UserRole)
+      })
+      .catch((err: any) => {
+        const localUser = authenticateUser(formData.mobile, formData.password)
+        if (localUser) {
+          if (localUser.role !== role) {
+            setError(`Please select your registered role: ${localUser.role}`)
+            return
+          }
+          setCurrentUser(localUser)
+          onLogin(localUser.role)
+          return
+        }
+        setError(
+          err.message ||
+            'Invalid mobile number or password. Please register first.',
+        )
+      })
   }
 
-  const handleOTPVerified = () => {
-    const result = registerUser({
-      fullName: formData.fullName.trim(),
-      businessName: formData.businessName.trim(),
-      mobile: formData.mobile,
-      email: formData.email.trim(),
-      password: formData.password,
-      address: formData.address.trim(),
-      gstin: formData.gstin,
-      pan: formData.pan,
-      licenceNumber: formData.licenceNumber.trim(),
-      role: role as
-        | 'CUSTOMER'
-        | 'TRUCK_OWNER'
-        | 'DRIVER'
-        | 'TRANSPORTER',
-    })
+  const handleDirectRegister = async () => {
+    try {
+      const response = await apiClient.register({
+        name: formData.fullName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        phone: formData.mobile,
+        companyName: formData.businessName.trim() || undefined,
+        city: formData.address.trim(),
+        gstNumber: formData.gstin || undefined,
+        role: role,
+      })
 
-    setOtpOpen(false)
+      setAuthToken(response.token)
+      setCurrentUser(response)
 
-    if (!result.success) {
-      setError(result.message)
-      return
+      registerUser({
+        fullName: formData.fullName.trim(),
+        businessName: formData.businessName.trim(),
+        mobile: formData.mobile,
+        email: formData.email.trim(),
+        password: formData.password,
+        address: formData.address.trim(),
+        gstin: formData.gstin,
+        pan: formData.pan,
+        licenceNumber: formData.licenceNumber.trim(),
+        role: role as
+          | 'CUSTOMER'
+          | 'TRUCK_OWNER'
+          | 'DRIVER'
+          | 'TRANSPORTER',
+      })
+
+      setError('')
+      setSuccessOpen(true)
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.')
     }
-
-    setError('')
-    setSuccessOpen(true)
   }
 
   const changeMode = (newMode: AuthMode) => {
@@ -323,7 +341,7 @@ function AuthModal({
                 <option value="TRANSPORTER">Transporter</option>
 
                 {mode === 'login' && (
-                  <option value="ADMIN">Admin (Demo)</option>
+                  <option value="ADMIN">Admin</option>
                 )}
               </select>
             </div>
@@ -606,7 +624,7 @@ function AuthModal({
             >
               {mode === 'login'
                 ? 'Login to Account'
-                : 'Verify Mobile & Register'}
+                : 'Create Account'}
             </button>
           </form>
 
@@ -615,14 +633,6 @@ function AuthModal({
           </p>
         </div>
       </div>
-
-      {/* OTP Verification */}
-      <OTPModal
-        isOpen={otpOpen}
-        mobile={formData.mobile}
-        onClose={() => setOtpOpen(false)}
-        onVerified={handleOTPVerified}
-      />
 
       {/* Registration Success */}
       <RegistrationSuccess

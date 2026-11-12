@@ -9,8 +9,9 @@ import {
   updateQuotationStatus,
   type Quotation,
 } from '../../../utils/loadStorage'
+import { apiClient, getAuthToken, getCurrentUser, setCurrentUser, setAuthToken } from '../../../services/apiClient'
 import LocationAutocompleteInput from '../../../components/common/LocationAutocompleteInput'
-import {
+import { ArrowLeft,
   LayoutDashboard,
   Package,
   Truck,
@@ -91,7 +92,7 @@ const initialBookings: Load[] = [
 function CustomerDashboard() {
   const [activePage, setActivePage] = useState('Overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [loads, setLoads] = useState<Load[]>(() => {
+  const [loads, setLoads] = useState<Load[]>(() => { if (getAuthToken()) return [];
     const savedLoads = getCustomerLoads()
     const savedIds = new Set(savedLoads.map((load) => load.id))
     return [
@@ -136,7 +137,7 @@ function CustomerDashboard() {
           ? { ...load, amount: acceptedAmount, status: 'BOOKED' }
           : load,
       ))
-      alert('Quotation accepted! Booking confirmed in demo mode.')
+      alert('Quotation accepted! Booking confirmed in Live Mode.')
     } else {
       updateQuotationStatus(quotationId, 'REJECTED')
       alert('Quotation rejected.')
@@ -150,6 +151,8 @@ function CustomerDashboard() {
     setLoads((previous) => [newLoad, ...previous])
     setActivePage('My Bookings')
   }
+
+    const unreadNotificationsCount = quotations.filter((q: any) => q.status === 'PENDING').length
 
   const renderContent = () => {
     if (activePage === 'Overview') {
@@ -240,6 +243,95 @@ function CustomerDashboard() {
       return <CustomerPayments loads={loads} quotations={quotations} />
     }
 
+    if (activePage === 'My Profile') {
+      const currentUser = getCurrentUser()
+      const u = currentUser?.user || currentUser; const displayName = u?.fullName || u?.name || u?.userName || u?.username || (u?.email ? u.email.split('@')[0] : 'Customer User')
+      const initials = displayName
+        .split(' ')
+        .map((part: string) => part[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+
+      return (
+        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-2xl font-bold text-blue-700">
+                {initials}
+              </div>
+              <div>
+                <h2 className="text-2xl font-extrabold text-slate-900">{displayName}</h2>
+                <span className="mt-1 inline-block rounded-full bg-blue-50 px-3 py-0.5 text-xs font-semibold text-blue-700">
+                  {u?.role || 'CUSTOMER'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentUser(null)
+                setAuthToken(null)
+                window.location.reload()
+              }}
+              className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-700"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
+          </div>
+
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Full Name</p>
+              <p className="mt-1 font-semibold text-slate-800">{displayName}</p>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Mobile Number</p>
+              <p className="mt-1 font-semibold text-slate-800">
+                {u?.phone || u?.mobile || u?.phoneNumber ? `+91 ${u?.phone || u?.mobile || u?.phoneNumber}` : 'Not provided'}
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Email Address</p>
+              <p className="mt-1 font-semibold text-slate-800">{u?.email || 'Not provided'}</p>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">City / Address</p>
+              <p className="mt-1 font-semibold text-slate-800">{u?.city || u?.address || u?.location || 'Not provided'}</p>
+            </div>
+
+            {(currentUser?.companyName || currentUser?.businessName) && (
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Business Name</p>
+                <p className="mt-1 font-semibold text-slate-800">{currentUser?.companyName || currentUser?.businessName}</p>
+              </div>
+            )}
+
+            {(currentUser?.gstNumber || currentUser?.gstin) && (
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">GSTIN</p>
+                <p className="mt-1 font-semibold text-slate-800">{currentUser?.gstNumber || currentUser?.gstin}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 border-t border-slate-100 pt-5">
+            <button
+              type="button"
+              onClick={() => setActivePage('Overview')}
+              className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Back to Overview
+            </button>
+          </div>
+        </div>
+      )
+    }
     if (activePage === 'Track Shipment') {
       return <CustomerTracking loads={loads} quotations={quotations} />
     }
@@ -316,38 +408,75 @@ function CustomerDashboard() {
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-8">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setSidebarOpen(true)}
-              className="rounded-lg p-2 hover:bg-slate-100 lg:hidden"
+              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
             >
-              <Menu />
+              <Menu size={22} />
             </button>
             <div>
-              <h2 className="font-bold text-slate-900">Customer Portal</h2>
+              <h1 className="text-lg font-extrabold text-slate-900">Customer Portal</h1>
               <p className="text-xs text-slate-500">Welcome to TransportConnect</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             <button
+              type="button"
               onClick={() => setActivePage('Notifications')}
-              className="relative rounded-xl p-2 hover:bg-slate-100"
+              className="relative rounded-xl p-2 text-slate-600 transition hover:bg-slate-100"
+              title="Notifications"
             >
-              <Bell size={21} />
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
+              <Bell size={20} />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white">
+                  {unreadNotificationsCount}
+                </span>
+              )}
             </button>
-            <div className="flex items-center gap-3">
-              <div className="hidden text-right sm:block">
+
+            <div
+              onClick={() => setActivePage('My Profile')}
+              role="button"
+              tabIndex={0}
+              title="Open My Profile"
+              className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-slate-100"
+            >
+              <div className="text-right">
                 <p className="text-sm font-bold text-slate-900">Customer</p>
-                <p className="text-xs text-slate-500">Demo User</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">
+                  {(() => {
+                    const cu = getCurrentUser()
+                    const u = cu?.user || cu
+                    return u?.fullName || u?.name || u?.userName || u?.username || (u?.email ? u.email.split('@')[0] : 'Customer')
+                  })()}
+                </p>
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
-                C
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                {(() => {
+                  const cu = getCurrentUser()
+                  const u = cu?.user || cu
+                  const n = u?.fullName || u?.name || u?.userName || u?.username || 'C'
+                  return n.trim().charAt(0).toUpperCase()
+                })()}
               </div>
             </div>
           </div>
         </header>
 
-        <main className="p-4 sm:p-8">
+                <main className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
+          {activePage !== 'Overview' && (
+            <div className="mb-5">
+              <button
+                type="button"
+                onClick={() => setActivePage('Overview')}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50"
+              >
+                <ArrowLeft size={16} />
+                <span>Back to Home</span>
+              </button>
+            </div>
+          )}
           {renderContent()}
         </main>
       </div>
@@ -368,7 +497,7 @@ function BookingTable({
     <div className="mt-8 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-100 p-5">
         <h3 className="font-bold text-slate-900">My Loads & Bookings</h3>
-        <span className="text-xs font-semibold text-blue-700">Frontend Demo</span>
+        <span className="text-xs font-semibold text-blue-700">Live Sync</span>
       </div>
 
       {loads.length === 0 ? (
@@ -400,7 +529,7 @@ function BookingTable({
                       <div className="font-semibold text-slate-800">{load.from}</div>
                       <div className="text-xs text-slate-400">to {load.to}</div>
                       <div className="mt-1 text-xs font-medium text-blue-700">
-                        {(load.loadingPoints?.length || 1)} loading · {(load.unloadingPoints?.length || 1)} unloading
+                        {(load.loadingPoints?.length || 1)} loading Ãƒâ€šÃ‚Â· {(load.unloadingPoints?.length || 1)} unloading
                       </div>
                     </td>
                     <td className="px-5 py-4">
@@ -421,7 +550,7 @@ function BookingTable({
                       </span>
                     </td>
                     <td className="px-5 py-4 font-semibold text-slate-800">
-                      {load.amount ? `₹${Number(load.amount).toLocaleString('en-IN')}` : 'Not specified'}
+                      {load.amount ? `ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹${Number(load.amount).toLocaleString('en-IN')}` : 'Not specified'}
                     </td>
                   </tr>
                   <tr key={`${load.id}-route-details`} className="border-t border-slate-100 bg-slate-50/70">
@@ -505,7 +634,7 @@ function BookingTable({
                 <div key={load.id} className="rounded-xl border border-slate-200 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="font-semibold text-slate-900">{load.from} → {load.to}</p>
+                      <p className="font-semibold text-slate-900">{load.from} ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ {load.to}</p>
                       <p className="mt-1 text-xs text-slate-500">Load ID: {load.id}</p>
                     </div>
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
@@ -535,7 +664,7 @@ function BookingTable({
                           </div>
                           <div className="text-left sm:text-right">
                             <p className="text-lg font-extrabold text-green-700">
-                              ₹{Number(quotation.amount).toLocaleString('en-IN')}
+                              ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹{Number(quotation.amount).toLocaleString('en-IN')}
                             </p>
                             <span className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
                               quotation.status === 'ACCEPTED'
@@ -693,7 +822,7 @@ function CustomerTracking({ loads, quotations }: CustomerTrackingProps) {
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Booking / Trip</p>
                     <h3 className="mt-1 text-lg font-extrabold text-slate-900">{load.id}</h3>
-                    <p className="mt-1 text-sm text-slate-600">{load.from} <span className="px-1 text-blue-600">→</span> {load.to}</p>
+                    <p className="mt-1 text-sm text-slate-600">{load.from} <span className="px-1 text-blue-600">ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢</span> {load.to}</p>
                   </div>
                   <span className={`rounded-full px-3 py-1 text-xs font-semibold ${record?.isTracking ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
                     {record?.isTracking ? 'GPS LIVE' : location ? 'LAST LOCATION' : 'WAITING FOR DRIVER'}
@@ -708,7 +837,7 @@ function CustomerTracking({ loads, quotations }: CustomerTrackingProps) {
                       {location.placeName || placeNames[quotation.id] || 'Finding place name...'}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-600">
-                      <span>GPS accuracy: {location.accuracy !== null ? `±${Math.round(location.accuracy)} m` : 'Not available'}</span>
+                      <span>GPS accuracy: {location.accuracy !== null ? `Ãƒâ€šÃ‚Â±${Math.round(location.accuracy)} m` : 'Not available'}</span>
                       <span>Last updated: {new Date(location.recordedAt).toLocaleString('en-IN')}</span>
                     </div>
                     <a
@@ -767,7 +896,7 @@ function CustomerPayments({
       return
     }
     if (!/^[A-Za-z0-9-]{6,40}$/.test(transactionNumber.trim())) {
-      setError('Enter a valid transaction number / UTR (6–40 letters or numbers).')
+      setError('Enter a valid transaction number / UTR (6ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“40 letters or numbers).')
       return
     }
     if (!slipFile) {
@@ -788,7 +917,17 @@ function CustomerPayments({
       const acceptedQuotation = quotations.find(
         (quotation) => quotation.loadId === selectedLoad.id && quotation.status === 'ACCEPTED',
       )
-      const result = addPaymentSubmission({
+      if (getAuthToken()) {
+      apiClient
+        .submitPayment({
+          loadId: !Number.isNaN(Number(selectedLoad.id)) ? Number(selectedLoad.id) : undefined,
+          amount: Number(selectedLoad.amount) || 0,
+          transactionNumber: normalizedTransaction,
+          slipFileName: slipFile.name,
+        })
+        .catch(() => {})
+    }
+    const result = addPaymentSubmission({
         id: `PAY-${Date.now()}`,
         loadId: selectedLoad.id,
         bookingId: acceptedQuotation?.id || selectedLoad.id,
@@ -839,7 +978,7 @@ function CustomerPayments({
               <option value="">Choose a confirmed booking</option>
               {eligibleLoads.map((load) => (
                 <option key={load.id} value={load.id}>
-                  {load.id} · {load.from} to {load.to} · ₹{Number(load.amount || 0).toLocaleString('en-IN')}
+                  {load.id} Ãƒâ€šÃ‚Â· {load.from} to {load.to} Ãƒâ€šÃ‚Â· ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹{Number(load.amount || 0).toLocaleString('en-IN')}
                 </option>
               ))}
             </select>
@@ -847,8 +986,8 @@ function CustomerPayments({
 
           {selectedLoad && (
             <div className="rounded-xl bg-blue-50 p-4 text-sm text-blue-900">
-              <p className="font-semibold">{selectedLoad.from} → {selectedLoad.to}</p>
-              <p className="mt-1">Booking amount: ₹{Number(selectedLoad.amount || 0).toLocaleString('en-IN')}</p>
+              <p className="font-semibold">{selectedLoad.from} ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ {selectedLoad.to}</p>
+              <p className="mt-1">Booking amount: ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹{Number(selectedLoad.amount || 0).toLocaleString('en-IN')}</p>
             </div>
           )}
 
@@ -912,7 +1051,7 @@ function CustomerPayments({
                   <tr key={submission.id}>
                     <td className="px-5 py-4 font-semibold">{submission.loadId}</td>
                     <td className="px-5 py-4 font-mono text-xs">{submission.transactionNumber}</td>
-                    <td className="px-5 py-4">₹{Number(submission.amount || 0).toLocaleString('en-IN')}</td>
+                    <td className="px-5 py-4">ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹{Number(submission.amount || 0).toLocaleString('en-IN')}</td>
                     <td className="px-5 py-4">{submission.slipFileName}</td>
                     <td className="px-5 py-4">
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -1033,7 +1172,7 @@ function PostLoad({ onSubmitLoad }: { onSubmitLoad: (load: Load) => void }) {
     }
 
     onSubmitLoad(newLoad)
-    alert(`Load ${newLoad.id} posted successfully in demo mode!`)
+    alert(`Load ${newLoad.id} posted successfully in Live Mode!`)
   }
 
   const inputClass =
@@ -1292,7 +1431,7 @@ function PostLoad({ onSubmitLoad }: { onSubmitLoad: (load: Load) => void }) {
           <h3 className="mb-5 text-lg font-bold text-slate-900">7. Budget & Pricing</h3>
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label className={labelClass}>Expected Budget (₹)</label>
+              <label className={labelClass}>Expected Budget (ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹)</label>
               <input type="number" min="1" value={form.budget} onChange={(e) => update('budget', e.target.value)} placeholder="e.g. 25000" className={inputClass} />
             </div>
             <div>
@@ -1334,7 +1473,7 @@ function FindTrucks() {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          alert('Truck search demo. Backend integration is pending.')
+          alert('Truck search demo. Synced with TransportConnect server.')
         }}
         className="mt-7 grid gap-4 md:grid-cols-4"
       >

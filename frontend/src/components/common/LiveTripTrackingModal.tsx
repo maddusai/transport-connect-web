@@ -13,6 +13,7 @@ import {
   Pause,
   RotateCcw,
 } from 'lucide-react'
+import { apiClient, getAuthToken } from '../../services/apiClient'
 
 export type TrackingTripData = {
   tripId: string
@@ -105,7 +106,7 @@ export default function LiveTripTrackingModal({
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Trip ID: <span className="font-semibold text-slate-700">{trip.tripId}</span> · Booking:{' '}
+                Trip ID: <span className="font-semibold text-slate-700">{trip.tripId}</span> Ã‚Â· Booking:{' '}
                 <span className="font-semibold text-slate-700">{trip.bookingId}</span>
               </p>
             </div>

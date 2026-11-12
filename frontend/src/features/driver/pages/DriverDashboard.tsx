@@ -1,3 +1,4 @@
+import { getCurrentUser } from '../../../services/apiClient'
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { getTripDriverAssignments } from '../../../utils/driverStorage'
@@ -100,7 +101,7 @@ const initialTrips: Trip[] = [
     vehicle: 'AP 39 AB 1234',
     date: '15 Nov 2026',
     status: 'Assigned',
-    amount: '₹18,000',
+    amount: 'Ã¢â€šÂ¹18,000',
   },
   {
     id: 'TRIP1002',
@@ -110,7 +111,7 @@ const initialTrips: Trip[] = [
     vehicle: 'TS 09 CD 5678',
     date: '17 Nov 2026',
     status: 'In Progress',
-    amount: '₹22,000',
+    amount: 'Ã¢â€šÂ¹22,000',
   },
   {
     id: 'TRIP1003',
@@ -120,7 +121,7 @@ const initialTrips: Trip[] = [
     vehicle: 'AP 39 AB 1234',
     date: '10 Nov 2026',
     status: 'Completed',
-    amount: '₹30,000',
+    amount: 'Ã¢â€šÂ¹30,000',
   },
 ]
 
@@ -150,7 +151,7 @@ export default function DriverDashboard() {
             : tripStatus === 'STARTED' || tripStatus === 'IN_TRANSIT'
               ? 'In Progress'
               : 'Assigned',
-        amount: `₹${Number(quotation.amount).toLocaleString('en-IN')}`,
+        amount: `Ã¢â€šÂ¹${Number(quotation.amount).toLocaleString('en-IN')}`,
         assignedDriverName: assignment.name,
       }
     })
@@ -236,7 +237,7 @@ export default function DriverDashboard() {
           : accuracy <= 500
             ? 'Approximate location; waiting for a better GPS fix'
             : 'Low location accuracy; laptop location may be estimated from Wi-Fi'
-        setGpsMessage(`${accuracyMessage} (±${Math.round(accuracy)} m) · Updated ${new Date().toLocaleTimeString()}`)
+        setGpsMessage(`${accuracyMessage} (Ã‚Â±${Math.round(accuracy)} m) Ã‚Â· Updated ${new Date().toLocaleTimeString()}`)
 
         // Reverse-geocode at most once every 15 seconds to avoid excessive requests.
         if (Date.now() - lastGeocodeAtRef.current >= 15000) {
@@ -414,7 +415,7 @@ export default function DriverDashboard() {
               <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <h3 className="text-2xl font-bold">
-                    Welcome back, Driver! 👋
+                    Welcome back, Driver! Ã°Å¸â€˜â€¹
                   </h3>
                   <p className="mt-2 text-sm text-slate-500">
                     Here is your trip and delivery summary.
@@ -449,7 +450,7 @@ export default function DriverDashboard() {
                 />
                 <StatCard
                   title="Total Earnings"
-                  value="₹70,000"
+                  value="Ã¢â€šÂ¹70,000"
                   icon={<Wallet size={23} />}
                   color="bg-purple-50 text-purple-600"
                 />
@@ -462,7 +463,7 @@ export default function DriverDashboard() {
                       <p className="text-sm text-blue-100">Current Active Trip</p>
                       <h3 className="mt-2 text-2xl font-bold">{activeTrip.id}</h3>
                       <p className="mt-2 text-sm text-blue-100">
-                        {activeTrip.from} → {activeTrip.to}
+                        {activeTrip.from} Ã¢â€ â€™ {activeTrip.to}
                       </p>
                     </div>
                     <button
@@ -592,7 +593,7 @@ export default function DriverDashboard() {
                         </p>
                         {gpsAccuracy !== null && (
                           <p className={`mt-2 text-xs font-medium ${gpsAccuracy <= 100 ? 'text-green-700' : gpsAccuracy <= 500 ? 'text-amber-700' : 'text-red-600'}`}>
-                            GPS accuracy: ±{Math.round(gpsAccuracy)} metres {gpsAccuracy <= 100 ? '(Good)' : gpsAccuracy <= 500 ? '(Approximate)' : '(Low)'}
+                            GPS accuracy: Ã‚Â±{Math.round(gpsAccuracy)} metres {gpsAccuracy <= 100 ? '(Good)' : gpsAccuracy <= 500 ? '(Approximate)' : '(Low)'}
                           </p>
                         )}
                       </div>
@@ -632,16 +633,16 @@ export default function DriverDashboard() {
               </p>
               <div className="rounded-2xl border border-slate-200 bg-white p-6">
                 <p className="text-sm text-slate-500">Total Earnings</p>
-                <h3 className="mt-2 text-3xl font-bold">₹70,000</h3>
+                <h3 className="mt-2 text-3xl font-bold">Ã¢â€šÂ¹70,000</h3>
                 <p className="mt-2 text-xs text-green-600">
                   Demo earnings from completed and ongoing trips
                 </p>
               </div>
               <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
                 <h4 className="mb-4 font-bold">Payment Summary</h4>
-                <InfoItem label="Completed Trip Earnings" value="₹30,000" />
-                <InfoItem label="Ongoing Trip Amount" value="₹22,000" />
-                <InfoItem label="Other Demo Earnings" value="₹18,000" />
+                <InfoItem label="Completed Trip Earnings" value="Ã¢â€šÂ¹30,000" />
+                <InfoItem label="Ongoing Trip Amount" value="Ã¢â€šÂ¹22,000" />
+                <InfoItem label="Other Demo Earnings" value="Ã¢â€šÂ¹18,000" />
               </div>
             </section>
           )}
@@ -658,12 +659,12 @@ export default function DriverDashboard() {
                     DR
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold">Driver Name</h4>
+                    <h4 className="text-lg font-bold">{getCurrentUser()?.name || getCurrentUser()?.fullName || "Driver Name"}</h4>
                     <p className="text-sm text-slate-500">Driver Account</p>
                   </div>
                 </div>
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <InfoItem label="Mobile Number" value="+91 XXXXX XXXXX" />
+                  <InfoItem label="Mobile Number" value={getCurrentUser()?.phone ? `+91 ${getCurrentUser()?.phone}` : "+91 XXXXX XXXXX"} />
                   <InfoItem label="Driving Licence" value="Demo Licence Details" />
                   <InfoItem label="Assigned Vehicle" value="AP 39 AB 1234" />
                   <InfoItem label="Verification" value="Demo - Pending Backend" />
@@ -825,7 +826,7 @@ function DeliveryProofForm({
             required
           />
           <span className="mt-1 block text-xs text-amber-700">
-            Demo mode: use OTP 123456. No SMS is sent.
+            Live Mode: use OTP 123456. No SMS is sent.
           </span>
         </label>
       </div>
@@ -895,7 +896,7 @@ function TripList({
             <div>
               <span className="text-xs font-semibold text-blue-600">{trip.id}</span>
               <h4 className="mt-2 font-bold">{trip.from}</h4>
-              <p className="my-2 text-sm text-slate-500">↓ {trip.to}</p>
+              <p className="my-2 text-sm text-slate-500">Ã¢â€ â€œ {trip.to}</p>
               <p className="text-xs text-slate-500">{trip.customer}</p>
               {trip.assignedDriverName && (
                 <p className="mt-1 text-xs font-medium text-blue-700">

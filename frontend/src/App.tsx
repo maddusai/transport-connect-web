@@ -1,3 +1,4 @@
+import { getCurrentUser, setAuthToken, setCurrentUser } from './services/apiClient'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 
@@ -9,7 +10,7 @@ import AdminDashboard from './features/admin/pages/AdminDashboard'
 import AuthModal from './components/common/AuthModal'
 import LocationAutocompleteInput from './components/common/LocationAutocompleteInput'
 
-import {
+import { ArrowLeft,
   Truck,
   Package,
   ArrowRight,
@@ -32,7 +33,7 @@ type AuthMode = 'login' | 'register'
 function App() {
   const [authOpen, setAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState<AuthMode>('login')
-  const [dashboardRole, setDashboardRole] = useState<UserRole | null>(null)
+  const [dashboardRole, setDashboardRole] = useState<UserRole | null>(() => (getCurrentUser()?.role as UserRole) || null)
 
   // Hero Find Transport search inputs
   const [heroPickup, setHeroPickup] = useState('')
@@ -55,12 +56,6 @@ function App() {
   if (dashboardRole === 'CUSTOMER') {
     return (
       <div>
-        <button
-          onClick={() => setDashboardRole(null)}
-          className="fixed right-5 top-5 z-[100] rounded-xl bg-white px-5 py-3 font-bold text-blue-700 shadow-lg hover:bg-blue-50"
-        >
-          ← Back to Home
-        </button>
         <CustomerDashboard />
       </div>
     )
@@ -70,12 +65,6 @@ function App() {
   if (dashboardRole === 'TRUCK_OWNER') {
     return (
       <div>
-        <button
-          onClick={() => setDashboardRole(null)}
-          className="fixed right-5 top-5 z-[100] rounded-xl bg-white px-5 py-3 font-bold text-blue-700 shadow-lg hover:bg-blue-50"
-        >
-          ← Back to Home
-        </button>
         <TruckOwnerDashboard />
       </div>
     )
@@ -85,12 +74,6 @@ function App() {
   if (dashboardRole === 'DRIVER') {
     return (
       <div>
-        <button
-          onClick={() => setDashboardRole(null)}
-          className="fixed right-5 top-5 z-[100] rounded-xl bg-white px-5 py-3 font-bold text-blue-700 shadow-lg hover:bg-blue-50"
-        >
-          ← Back to Home
-        </button>
         <DriverDashboard />
       </div>
     )
@@ -100,12 +83,6 @@ function App() {
   if (dashboardRole === 'TRANSPORTER') {
     return (
       <div>
-        <button
-          onClick={() => setDashboardRole(null)}
-          className="fixed right-5 top-5 z-[100] rounded-xl bg-white px-5 py-3 font-bold text-blue-700 shadow-lg hover:bg-blue-50"
-        >
-          ← Back to Home
-        </button>
         <TransporterDashboard />
       </div>
     )
@@ -115,12 +92,6 @@ function App() {
   if (dashboardRole === 'ADMIN') {
     return (
       <div>
-        <button
-          onClick={() => setDashboardRole(null)}
-          className="fixed right-5 top-5 z-[100] rounded-xl bg-white px-5 py-3 font-bold text-blue-700 shadow-lg hover:bg-blue-50"
-        >
-          ← Back to Home
-        </button>
         <AdminDashboard />
       </div>
     )
@@ -439,7 +410,7 @@ function App() {
           </div>
 
           <p className="text-sm text-slate-500">
-            © 2026 Transport Connect. All rights reserved.
+            Ã‚Â© 2026 Transport Connect. All rights reserved.
           </p>
 
           <div className="flex gap-5 text-sm text-slate-500">
